@@ -26,12 +26,12 @@ export default function AgentReviewPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-nuit">Votre agent est prêt</h1>
-      <p className="mt-1 text-ardoise">Relisez et corrigez si besoin. Vous ajouterez sa mémoire à l&apos;étape suivante.</p>
+      <h1 className="text-2xl font-semibold text-noir">Votre agent est prêt</h1>
+      <p className="mt-1 text-gris">Relisez et corrigez si besoin. Vous ajouterez sa mémoire à l&apos;étape suivante.</p>
 
       <section className="mt-8 grid gap-6">
         <Field label="Nom de l'agent">
-          <input className="input disabled:bg-glace disabled:text-ardoise" disabled={BRAND.lockAgentName} value={draft.name} onChange={(e) => set("name", e.target.value)} />
+          <input className="input disabled:bg-perle disabled:text-gris" disabled={BRAND.lockAgentName} value={draft.name} onChange={(e) => set("name", e.target.value)} />
         </Field>
 
         <Field label="Voix">
@@ -41,10 +41,10 @@ export default function AgentReviewPage() {
                 key={v.id}
                 type="button"
                 onClick={() => set("voiceId", v.id)}
-                className={`rounded-xl border px-3 py-2 text-left ${draft.voiceId === v.id ? "border-brand bg-glace" : "border-ligne"}`}
+                className={`rounded-xl border px-3 py-2 text-left ${draft.voiceId === v.id ? "border-brand bg-perle" : "border-ligne"}`}
               >
                 <div className="font-medium">{v.label}</div>
-                <div className="text-xs text-ardoise">{v.style}</div>
+                <div className="text-xs text-gris">{v.style}</div>
               </button>
             ))}
           </div>
@@ -76,7 +76,7 @@ export default function AgentReviewPage() {
         <Field label="Tags pour classer les appels">
           <div className="flex flex-wrap gap-2">
             {draft.tags.map((t, i) => (
-              <span key={i} className="rounded-full bg-glace px-3 py-1 text-sm" title={t.description}>{t.name}</span>
+              <span key={i} className="rounded-full bg-perle px-3 py-1 text-sm" title={t.description}>{t.name}</span>
             ))}
           </div>
         </Field>
@@ -117,7 +117,7 @@ export default function AgentReviewPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-nuit">{label}</span>
+      <span className="text-sm font-medium text-noir">{label}</span>
       {children}
     </label>
   );

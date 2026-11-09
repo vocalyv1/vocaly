@@ -1,31 +1,30 @@
 @import "tailwindcss";
 
-/* Charte Vocaly « Nuit électrique » */
+/* Charte Vocaly (logo fourni par Thierry le 09/11) : noir, blanc, gris, gris perle.
+   Le vert est réservé au statut « appel traité ». */
 @theme {
-  --color-nuit: #0A1230;
-  --color-brand: #3B6BFF;
-  --color-cyan: #22E1F0;
-  --color-glace: #F2F5FF;
-  --color-ardoise: #5B6585;
-  --color-ligne: #DDE2F2;
-  --color-fond: #F7F8FD;
-  --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --color-noir: #0B0C10;
+  --color-brand: #0B0C10;
+  --color-gris: #55565C;
+  --color-perle: #EEEEF0;
+  --color-ligne: #DCDCE0;
+  --color-fond: #F6F6F7;
+  --color-traite: #1F9D55;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
   background: var(--color-fond);
-  color: var(--color-nuit);
+  color: var(--color-noir);
   font-family: var(--font-sans);
 }
 
 h1, h2 {
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 @layer components {
   .input {
-    @apply w-full rounded-xl border border-ligne bg-white px-4 py-3 outline-none focus:border-brand;
+    @apply w-full rounded-xl border border-ligne bg-white px-4 py-3 outline-none focus:border-noir;
   }
 }

@@ -34,9 +34,9 @@ export default function OnboardingPage() {
       <div className="mb-8 h-2 w-full rounded-full bg-ligne">
         <div className="h-2 rounded-full bg-brand transition-all" style={{ width: `${progress}%` }} />
       </div>
-      <p className="mb-2 text-sm text-ardoise">Question {step + 1} sur {QUESTIONS.length}</p>
-      <h1 className="mb-2 text-2xl font-semibold text-nuit">{q.title}</h1>
-      {q.help && <p className="mb-4 text-ardoise">{q.help}</p>}
+      <p className="mb-2 text-sm text-gris">Question {step + 1} sur {QUESTIONS.length}</p>
+      <h1 className="mb-2 text-2xl font-semibold text-noir">{q.title}</h1>
+      {q.help && <p className="mb-4 text-gris">{q.help}</p>}
 
       <div className="mt-4 flex flex-col gap-3">
         {q.kind === "text" ? (
@@ -64,7 +64,7 @@ export default function OnboardingPage() {
                   setValue([...list]);
                 }}
                 className={`rounded-xl border px-4 py-3 text-left transition ${
-                  selected ? "border-brand bg-glace text-nuit" : "border-ligne hover:border-brand"
+                  selected ? "border-brand bg-perle text-noir" : "border-ligne hover:border-brand"
                 }`}
               >
                 {o.label}
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
           type="button"
           disabled={step === 0}
           onClick={() => setStep(step - 1)}
-          className="rounded-xl px-4 py-3 text-ardoise disabled:opacity-0"
+          className="rounded-xl px-4 py-3 text-gris disabled:opacity-0"
         >
           Retour
         </button>
