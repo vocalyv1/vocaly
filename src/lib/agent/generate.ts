@@ -1,5 +1,6 @@
 import type { QuizAnswers } from "@/lib/quiz";
 import { VOICES } from "@/lib/agent/voices";
+import { BRAND } from "@/lib/brand";
 
 // Génère une première configuration d'agent à partir du quiz.
 // L'utilisateur la corrige ensuite au lieu de partir d'une page blanche.
@@ -83,13 +84,13 @@ const TRANSFER_TEXT: Record<QuizAnswers["transfer"], string> = {
 export function generateAgent(a: QuizAnswers): AgentDraft {
   const sectorLabel = SECTOR_LABEL[a.sector] ?? SECTOR_LABEL.autre;
   const needsCalendar = a.goal === "book" || a.callReasons.includes("rdv") || a.callReasons.includes("reservation");
-  const agentName = "Grace";
+  const agentName = BRAND.agentName;
 
   const tags: Tag[] = a.callReasons.map((r) => REASON_TAGS[r]).filter(Boolean);
   tags.push({ name: "Prospect", description: "Nouveau client potentiel à relancer" });
 
   const instructions = [
-    `Tu es ${agentName}, l'assistante téléphonique de ${a.businessName}, ${sectorLabel} à ${a.city}.`,
+    `Tu es ${agentName}, l'assistant(e) téléphonique de ${a.businessName}, ${sectorLabel} à ${a.city}.`,
     `Activité : ${a.activity}.`,
     `Horaires d'ouverture : ${a.hours}.`,
     GOAL_TEXT[a.goal],
@@ -106,7 +107,7 @@ export function generateAgent(a: QuizAnswers): AgentDraft {
     voiceId: VOICES[0].id,
     role: GOAL_TEXT[a.goal].replace("Ton rôle principal est de ", "").replace(/\.$/, ""),
     instructions,
-    greeting: `Bonjour, ${a.businessName}, ${agentName} à votre écoute. Je suis une assistante virtuelle et cet appel peut être enregistré. Comment puis-je vous aider ?`,
+    greeting: `Bonjour, ${a.businessName}, ${agentName} à votre écoute. Je suis un assistant virtuel et cet appel peut être enregistré. Comment puis-je vous aider ?`,
     speaksFirst: true,
     maxCallSeconds: a.callsPerDay === "gt100" ? 240 : 360,
     transferRules: a.transfer === "never" ? [] : [{ when: TRANSFER_TEXT[a.transfer], phone: "", label: "Accueil" }],

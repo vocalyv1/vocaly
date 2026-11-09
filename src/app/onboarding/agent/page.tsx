@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { AgentDraft } from "@/lib/agent/generate";
 import { VOICES } from "@/lib/agent/voices";
+import { BRAND } from "@/lib/brand";
 
 // Écran « l'utilisateur corrige au lieu d'écrire » : tout est pré-rempli par le quiz.
 export default function AgentReviewPage() {
@@ -30,7 +31,7 @@ export default function AgentReviewPage() {
 
       <section className="mt-8 grid gap-6">
         <Field label="Nom de l'agent">
-          <input className="input" value={draft.name} onChange={(e) => set("name", e.target.value)} />
+          <input className="input disabled:bg-slate-50 disabled:text-slate-500" disabled={BRAND.lockAgentName} value={draft.name} onChange={(e) => set("name", e.target.value)} />
         </Field>
 
         <Field label="Voix">
