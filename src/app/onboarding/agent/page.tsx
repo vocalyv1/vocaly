@@ -17,7 +17,7 @@ export default function AgentReviewPage() {
   if (!draft) {
     return (
       <main className="mx-auto max-w-xl px-4 py-10">
-        <p>Aucun agent en cours. <a className="text-emerald-700 underline" href="/onboarding">Commencer le quiz</a></p>
+        <p>Aucun agent en cours. <a className="text-brand underline" href="/onboarding">Commencer le quiz</a></p>
       </main>
     );
   }
@@ -26,12 +26,12 @@ export default function AgentReviewPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-slate-900">Votre agent est prêt</h1>
-      <p className="mt-1 text-slate-500">Relisez et corrigez si besoin. Vous ajouterez sa mémoire à l&apos;étape suivante.</p>
+      <h1 className="text-2xl font-semibold text-nuit">Votre agent est prêt</h1>
+      <p className="mt-1 text-ardoise">Relisez et corrigez si besoin. Vous ajouterez sa mémoire à l&apos;étape suivante.</p>
 
       <section className="mt-8 grid gap-6">
         <Field label="Nom de l'agent">
-          <input className="input disabled:bg-slate-50 disabled:text-slate-500" disabled={BRAND.lockAgentName} value={draft.name} onChange={(e) => set("name", e.target.value)} />
+          <input className="input disabled:bg-glace disabled:text-ardoise" disabled={BRAND.lockAgentName} value={draft.name} onChange={(e) => set("name", e.target.value)} />
         </Field>
 
         <Field label="Voix">
@@ -41,10 +41,10 @@ export default function AgentReviewPage() {
                 key={v.id}
                 type="button"
                 onClick={() => set("voiceId", v.id)}
-                className={`rounded-xl border px-3 py-2 text-left ${draft.voiceId === v.id ? "border-emerald-600 bg-emerald-50" : "border-slate-300"}`}
+                className={`rounded-xl border px-3 py-2 text-left ${draft.voiceId === v.id ? "border-brand bg-glace" : "border-ligne"}`}
               >
                 <div className="font-medium">{v.label}</div>
-                <div className="text-xs text-slate-500">{v.style}</div>
+                <div className="text-xs text-ardoise">{v.style}</div>
               </button>
             ))}
           </div>
@@ -76,7 +76,7 @@ export default function AgentReviewPage() {
         <Field label="Tags pour classer les appels">
           <div className="flex flex-wrap gap-2">
             {draft.tags.map((t, i) => (
-              <span key={i} className="rounded-full bg-slate-100 px-3 py-1 text-sm" title={t.description}>{t.name}</span>
+              <span key={i} className="rounded-full bg-glace px-3 py-1 text-sm" title={t.description}>{t.name}</span>
             ))}
           </div>
         </Field>
@@ -84,7 +84,7 @@ export default function AgentReviewPage() {
         <Field label="FAQ de départ (complétez les réponses)">
           <div className="grid gap-3">
             {draft.faq.map((f, i) => (
-              <div key={i} className="rounded-xl border border-slate-200 p-3">
+              <div key={i} className="rounded-xl border border-ligne p-3">
                 <div className="mb-2 text-sm font-medium">{f.q}</div>
                 <input
                   className="input" placeholder="Votre réponse"
@@ -105,7 +105,7 @@ export default function AgentReviewPage() {
             sessionStorage.setItem("onboarding", JSON.stringify({ ...raw, draft }));
             // Étape suivante (jour 3) : mémoire de l'agent (URL ou documents).
           }}
-          className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white"
+          className="rounded-xl bg-brand px-6 py-3 font-medium text-white"
         >
           Continuer vers la mémoire
         </button>
@@ -117,7 +117,7 @@ export default function AgentReviewPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-nuit">{label}</span>
       {children}
     </label>
   );

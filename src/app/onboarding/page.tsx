@@ -31,18 +31,18 @@ export default function OnboardingPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col px-4 py-10">
-      <div className="mb-8 h-2 w-full rounded-full bg-slate-200">
-        <div className="h-2 rounded-full bg-emerald-600 transition-all" style={{ width: `${progress}%` }} />
+      <div className="mb-8 h-2 w-full rounded-full bg-ligne">
+        <div className="h-2 rounded-full bg-brand transition-all" style={{ width: `${progress}%` }} />
       </div>
-      <p className="mb-2 text-sm text-slate-500">Question {step + 1} sur {QUESTIONS.length}</p>
-      <h1 className="mb-2 text-2xl font-semibold text-slate-900">{q.title}</h1>
-      {q.help && <p className="mb-4 text-slate-500">{q.help}</p>}
+      <p className="mb-2 text-sm text-ardoise">Question {step + 1} sur {QUESTIONS.length}</p>
+      <h1 className="mb-2 text-2xl font-semibold text-nuit">{q.title}</h1>
+      {q.help && <p className="mb-4 text-ardoise">{q.help}</p>}
 
       <div className="mt-4 flex flex-col gap-3">
         {q.kind === "text" ? (
           <input
             autoFocus
-            className="rounded-xl border border-slate-300 px-4 py-3 text-lg outline-none focus:border-emerald-600"
+            className="rounded-xl border border-ligne px-4 py-3 text-lg outline-none focus:border-brand"
             placeholder={q.placeholder}
             value={(answers[q.id] as string) ?? ""}
             onChange={(e) => setValue(e.target.value)}
@@ -64,7 +64,7 @@ export default function OnboardingPage() {
                   setValue([...list]);
                 }}
                 className={`rounded-xl border px-4 py-3 text-left transition ${
-                  selected ? "border-emerald-600 bg-emerald-50 text-emerald-900" : "border-slate-300 hover:border-slate-400"
+                  selected ? "border-brand bg-glace text-nuit" : "border-ligne hover:border-brand"
                 }`}
               >
                 {o.label}
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
           type="button"
           disabled={step === 0}
           onClick={() => setStep(step - 1)}
-          className="rounded-xl px-4 py-3 text-slate-600 disabled:opacity-0"
+          className="rounded-xl px-4 py-3 text-ardoise disabled:opacity-0"
         >
           Retour
         </button>
@@ -87,7 +87,7 @@ export default function OnboardingPage() {
           type="button"
           disabled={!canContinue}
           onClick={next}
-          className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white disabled:opacity-40"
+          className="rounded-xl bg-brand px-6 py-3 font-medium text-white disabled:opacity-40"
         >
           {step === QUESTIONS.length - 1 ? "Créer mon agent" : "Continuer"}
         </button>
