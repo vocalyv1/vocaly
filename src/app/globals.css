@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 /* Charte Vocaly (logo fourni par Thierry le 09/11) : noir, blanc, gris, gris perle.
    Le vert est réservé au statut « appel traité ». */
 @theme {
@@ -8,9 +10,24 @@
   --color-gris: #55565C;
   --color-perle: #F4F4F5;
   --color-ligne: #DCDCE0;
-  --color-fond: #F6F6F7;
+  --color-fond: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-sur-brand: #FFFFFF;
   --color-traite: #16A34A;
   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Thème secondaire : sombre (fond noir, logo blanc). */
+[data-theme="dark"] {
+  --color-noir: #FFFFFF;
+  --color-brand: #FFFFFF;
+  --color-sur-brand: #0B0C10;
+  --color-gris: #A1A2A8;
+  --color-perle: #1A1B21;
+  --color-ligne: #2C2D34;
+  --color-fond: #0B0C10;
+  --color-surface: #131419;
+  color-scheme: dark;
 }
 
 body {
@@ -25,6 +42,6 @@ h1, h2 {
 
 @layer components {
   .input {
-    @apply w-full rounded-xl border border-ligne bg-white px-4 py-3 outline-none focus:border-noir;
+    @apply w-full rounded-xl border border-ligne bg-surface px-4 py-3 outline-none focus:border-noir;
   }
 }

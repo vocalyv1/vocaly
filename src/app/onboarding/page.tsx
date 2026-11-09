@@ -87,7 +87,7 @@ export default function OnboardingPage() {
           type="button"
           disabled={!canContinue}
           onClick={next}
-          className="rounded-xl bg-brand px-6 py-3 font-medium text-white disabled:opacity-40"
+          className="rounded-xl bg-brand px-6 py-3 font-medium text-sur-brand disabled:opacity-40"
         >
           {step === QUESTIONS.length - 1 ? "Créer mon agent" : "Continuer"}
         </button>

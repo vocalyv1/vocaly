@@ -105,7 +105,7 @@ export default function AgentReviewPage() {
             sessionStorage.setItem("onboarding", JSON.stringify({ ...raw, draft }));
             // Étape suivante (jour 3) : mémoire de l'agent (URL ou documents).
           }}
-          className="rounded-xl bg-brand px-6 py-3 font-medium text-white"
+          className="rounded-xl bg-brand px-6 py-3 font-medium text-sur-brand"
         >
           Continuer vers la mémoire
         </button>
