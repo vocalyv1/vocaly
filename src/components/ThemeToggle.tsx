@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 // Thème de base : clair (fond blanc, logo noir). Thème secondaire : sombre, au choix de l'utilisateur.
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setDark(document.documentElement.dataset.theme === "dark");
@@ -19,6 +21,9 @@ export function ThemeToggle() {
       localStorage.setItem("theme", next ? "dark" : "light");
     } catch {}
   }
+
+  // Le site vitrine a son propre bouton dans son en-tête.
+  if (pathname === "/") return null;
 
   return (
     <button
