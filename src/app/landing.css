@@ -224,3 +224,16 @@ html:has(.lp) { scroll-behavior: smooth; }
 }
 .lp .btn-invert { background: var(--inverse-fg); color: var(--inverse-bg); }
 .lp .phone { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Tarifs */
+.lp .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.lp .plan { border: 1px solid var(--line); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+.lp .plan .offer-list { margin: 10px 0 18px; gap: 10px; font-size: 15px; }
+.lp .plan .btn { margin-top: auto; width: 100%; }
+.lp .plan-name { font-weight: 800; font-size: 18px; }
+.lp .plan-price { font-size: clamp(28px, 3vw, 36px); font-weight: 800; }
+.lp .plan-price span { font-size: 16px; font-weight: 500; color: var(--muted); }
+.lp .plan-sub { color: var(--muted); font-size: 15px; }
+.lp .plan-early { font-weight: 700; color: #16A34A; font-size: 15px; }
+.lp .plan-note { margin-top: 20px; color: var(--muted); font-size: 15px; }
+@media (max-width: 860px) { .lp .plans { grid-template-columns: minmax(0, 1fr); } }

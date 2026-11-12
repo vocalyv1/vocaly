@@ -12,6 +12,7 @@ export const NAV = [
   { href: "/app/agent", label: "Mon agent" },
   { href: "/app/agent/connaissances", label: "Connaissances" },
   { href: "/app/telephone", label: "Téléphone" },
+  { href: "/app/abonnement", label: "Abonnement" },
   { href: "/app/compte", label: "Compte" },
 ];
 

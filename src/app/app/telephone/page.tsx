@@ -1,13 +1,17 @@
 import { getWorkspace } from "@/lib/workspace";
 import { Card, Empty, Notice, PageHeader, formatDate } from "@/components/app/ui";
 import { PhoneForm } from "./PhoneForm";
+import Link from "next/link";
+import { isActive } from "@/lib/billing/subscription";
 
 const MODE_LABEL: Record<string, string> = { new_number: "nouveau numéro", forwarding: "renvoi d'appel", porting: "transfert de numéro" };
 
 export default async function PhonePage() {
-  const { agent, business } = await getWorkspace();
+  const { agent, business, supabase } = await getWorkspace();
   if (!agent) return <Empty title="Aucun agent" text="Créez d'abord votre agent." href="/onboarding" cta="Créer mon agent" />;
   const req = agent.phone_request ?? {};
+  const { data: sub } = await supabase.from("subscriptions").select("status, paid_until").eq("business_id", business.id).maybeSingle();
+  const subscribed = isActive(sub);
   return (
     <div>
       <PageHeader title="Téléphone" subtitle="Le numéro sur lequel votre agent répond." />
@@ -38,7 +42,14 @@ export default async function PhonePage() {
         <Card>
           <h2 className="mb-1 text-lg font-medium">Demander un numéro</h2>
           <p className="mb-5 text-sm text-gris">Numéros congolais (+242). La mise en service est faite avec vous par l&apos;équipe Vocaly.</p>
-          <PhoneForm />
+          {subscribed ? (
+            <PhoneForm />
+          ) : (
+            <Notice>
+              La mise en service d&apos;un numéro demande une offre active. Vous pouvez tester votre agent gratuitement dans le navigateur avant de payer.{" "}
+              <Link href="/app/abonnement" className="font-semibold underline">Choisir mon offre</Link>
+            </Notice>
+          )}
         </Card>
       )}
     </div>

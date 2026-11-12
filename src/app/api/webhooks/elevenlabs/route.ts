@@ -89,6 +89,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "enregistrement impossible" }, { status: 500 });
   }
 
+  // Décompte des minutes du forfait (appels téléphoniques réels uniquement, une seule fois par appel).
+  const { error: usageError } = await db.rpc("record_call_usage", { p_call_id: call.id });
+  if (usageError) await logError("webhook", "Décompte des minutes impossible", { error: usageError.message, callId: call.id }, agent.business_id);
+
   const site = process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
   after(() => processCall(call.id, site));
   return NextResponse.json({ ok: true });

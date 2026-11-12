@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { logError } from "@/lib/supabase/admin";
 import { getWorkspace } from "@/lib/workspace";
+import { isActive } from "@/lib/billing/subscription";
 
 const PhoneRequest = z.object({
   mode: z.enum(["new_number", "forwarding", "porting"]),
@@ -15,6 +16,8 @@ const PhoneRequest = z.object({
 export async function requestPhone(_: { ok?: boolean; message?: string }, form: FormData) {
   const { supabase, agent, business, user } = await getWorkspace();
   if (!agent) return { ok: false, message: "Aucun agent." };
+  const { data: sub } = await supabase.from("subscriptions").select("status, paid_until").eq("business_id", business.id).maybeSingle();
+  if (!isActive(sub)) return { ok: false, message: "Choisissez d'abord une offre dans « Abonnement »." };
   const p = PhoneRequest.safeParse(Object.fromEntries(form.entries()));
   if (!p.success) return { ok: false, message: "Formulaire incomplet." };
   if (p.data.mode !== "new_number" && !/^\+?[0-9 ]{6,20}$/.test(p.data.current_number)) {

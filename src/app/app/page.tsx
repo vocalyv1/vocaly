@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getWorkspace } from "@/lib/workspace";
+import { isActive } from "@/lib/billing/subscription";
 import { Card, LivePill, Segmented, StatusBadge, formatDate, formatDuration } from "@/components/app/ui";
 import { BarChart, CountUp, Gauge, MiniBars, Sparkline } from "@/components/app/viz";
 
@@ -58,10 +59,12 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   }
   const last7 = days.slice(-7);
 
+  const { data: sub } = await supabase.from("subscriptions").select("status, paid_until").eq("business_id", business.id).maybeSingle();
   const steps = [
     { done: Boolean(agent), label: "Créer votre agent", href: "/app/agent" },
     { done: Boolean(agent?.provider_test_agent_id), label: "Le tester dans le navigateur", href: "/app/agent" },
     { done: (agent?.published_version ?? 0) > 0, label: "Publier une première version", href: "/app/agent" },
+    { done: isActive(sub), label: "Choisir votre offre", href: "/app/abonnement" },
     { done: agent?.phone_status === "connected", label: "Connecter votre numéro", href: "/app/telephone" },
   ];
   const doneSteps = steps.filter((s) => s.done).length;

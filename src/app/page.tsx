@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/plans";
 import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LandingThemeButton } from "@/components/LandingThemeButton";
@@ -22,6 +23,7 @@ export default function Home() {
       <a href="#comment">Comment ça marche</a>
       <a href="#fonctions">Ce qu’il fait</a>
       <a href="#demo">Démo</a>
+      <a href="#tarifs">Tarifs</a>
       <a href="#faq">Questions</a>
     </nav>
     <div className="top-actions">
@@ -215,6 +217,37 @@ export default function Home() {
     </div>
   </section>
 
+  {/* TARIFS */}
+  <section id="tarifs" style={{paddingTop: "0"}}>
+    <div className="wrap">
+      <div className="section-head">
+        <span className="eyebrow">Tarifs</span>
+        <h2 className="h2">Moins cher qu’une standardiste, sans engagement.</h2>
+        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money ou Airtel Money quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises.</p>
+      </div>
+      <div className="plans">
+        {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => (
+          <div className="plan" key={id}>
+            <span className="plan-name">{PLANS[id].name}</span>
+            <p className="plan-price">{formatFcfa(PLANS[id].monthly)}<span> / mois</span></p>
+            <p className="plan-sub">ou {formatFcfa(PLANS[id].yearly)} / an (2 mois offerts)</p>
+            <p className="plan-early">Avant-première : {formatFcfa(planPrice(id, "monthly", true))} / mois</p>
+            <ul className="offer-list">{PLANS[id].features.map((f) => <li key={f}>{f}</li>)}</ul>
+            <Link className="btn btn-primary" href="/onboarding">Créer mon agent</Link>
+          </div>
+        ))}
+        <div className="plan">
+          <span className="plan-name">Accompagnement</span>
+          <p className="plan-price">Sur devis</p>
+          <p className="plan-sub">Plusieurs agents, plusieurs numéros, gros volumes d’appels.</p>
+          <ul className="offer-list"><li>Mise en place complète avec notre équipe</li><li>Minutes adaptées à votre volume</li><li>Suivi dédié</li></ul>
+          <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly" target="_blank" rel="noopener">Demander un devis</a>
+        </div>
+      </div>
+      <p className="plan-note">Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois.</p>
+    </div>
+  </section>
+
   {/* OFFRE AVANT-PREMIÈRE */}
   <section id="offre">
     <div className="wrap">
@@ -228,7 +261,7 @@ export default function Home() {
           <ul className="offer-list">
             <li>Prix de lancement réduit</li>
             <li>Mise en place de votre agent avec nous</li>
-            <li>Paiement en FCFA</li>
+            <li>Paiement par MTN Mobile Money ou Airtel Money</li>
             <li>Vos remarques changent directement le produit</li>
           </ul>
           <Link className="btn btn-primary" href="/onboarding">Réserver ma place</Link>
@@ -264,7 +297,7 @@ export default function Home() {
         </details>
         <details>
           <summary>Combien ça coûte ?</summary>
-          <p>Vous créez votre agent et vous l’essayez avant de payer. Le prix de lancement réduit de l’avant-première s’affiche au moment de l’activer, en FCFA.</p>
+          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. L’offre Essentiel coûte {formatFcfa(PLANS.essentiel.monthly)} par mois et l’offre Pro {formatFcfa(PLANS.pro.monthly)}, avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money ou Airtel Money.</p>
         </details>
         <details>
           <summary>Puis-je reprendre la main sur un appel ?</summary>
