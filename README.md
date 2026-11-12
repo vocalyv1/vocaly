@@ -11,7 +11,7 @@ Aucune clé ne doit être écrite dans le code ni envoyée dans une conversation
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API | Connexion à la base |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API (clé `anon`) | Requêtes de l'utilisateur, protégées par la RLS |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API (clé `service_role`) | Webhook, synchronisation, journal d'erreurs. Serveur uniquement |
-| `NEXT_PUBLIC_SITE_URL` | L'adresse du site, ex. `https://vocaly.vercel.app` | Liens dans les e-mails et la confirmation d'inscription |
+| `NEXT_PUBLIC_SITE_URL` | L'adresse du site : `https://vocaly-theta.vercel.app` (domaine de production) | Liens dans les e-mails et la confirmation d'inscription |
 | `ELEVENLABS_API_KEY` | ElevenLabs → Developers → API Keys | Création et mise à jour des agents, base de connaissances |
 | `ELEVENLABS_WEBHOOK_SECRET` | ElevenLabs → Agents → Settings → Post-call webhook | Vérifier que les fins d'appel viennent bien d'ElevenLabs |
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys | Rapport structuré de chaque appel |
@@ -21,6 +21,9 @@ Aucune clé ne doit être écrite dans le code ni envoyée dans une conversation
 Sans les variables Supabase, le site vitrine et le quiz fonctionnent ; l'espace client affiche « en cours d'activation ». Sans ElevenLabs, les réglages s'enregistrent mais le test vocal et la publication sont désactivés, avec un message clair.
 
 ## Mise en place
+
+Production : https://vocaly-theta.vercel.app (Supabase : projet `vrqwwohqdpxtjxlyagcc`).
+
 
 1. **Supabase** : créer le projet, puis exécuter dans l'éditeur SQL, dans l'ordre, `supabase/migrations/0001_init.sql` puis `0002_mvp.sql`.
    Dans Authentication → URL Configuration : Site URL = l'adresse du site, Redirect URLs = `https://<site>/auth/callback`.
