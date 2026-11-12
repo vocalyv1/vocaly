@@ -230,7 +230,7 @@ export default function Home() {
           <div className="plan" key={id}>
             <span className="plan-name">{PLANS[id].name}</span>
             <p className="plan-price">{formatFcfa(PLANS[id].monthly)}<span> / mois</span></p>
-            <p className="plan-sub">ou {formatFcfa(PLANS[id].yearly)} / an (2 mois offerts)</p>
+            <p className="plan-sub">ou {formatFcfa(PLANS[id].yearly)} / an (−17 %, 2 mois offerts)</p>
             <p className="plan-early">Avant-première : {formatFcfa(planPrice(id, "monthly", true))} / mois</p>
             <ul className="offer-list">{PLANS[id].features.map((f) => <li key={f}>{f}</li>)}</ul>
             <Link className="btn btn-primary" href="/onboarding">Créer mon agent</Link>

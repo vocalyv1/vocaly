@@ -56,7 +56,7 @@ export function BillingForm(p: Props) {
           {(["monthly", "yearly"] as const).map((v) => (
             <button key={v} type="button" onClick={() => { setPeriod(v); setKind("subscription"); }}
               className={`rounded-full px-4 py-2 transition-colors ${period === v ? "bg-brand text-sur-brand" : "text-gris hover:text-noir"}`}>
-              {v === "monthly" ? "Mensuel" : "Annuel · 2 mois offerts"}
+              {v === "monthly" ? "Mensuel" : "Annuel · −17 %"}
             </button>
           ))}
         </div>
