@@ -237,11 +237,11 @@ export default function Home() {
           </div>
         ))}
         <div className="plan">
-          <span className="plan-name">Accompagnement</span>
+          <span className="plan-name">Business+</span>
           <p className="plan-price">Sur devis</p>
           <p className="plan-sub">Plusieurs agents, plusieurs numéros, gros volumes d’appels.</p>
-          <ul className="offer-list"><li>Mise en place complète avec notre équipe</li><li>Minutes adaptées à votre volume</li><li>Suivi dédié</li></ul>
-          <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly" target="_blank" rel="noopener">Demander un devis</a>
+          <ul className="offer-list"><li>Minutes adaptées à votre volume</li><li>Plusieurs agents et numéros +242</li><li>Mise en place complète avec notre équipe</li><li>Suivi dédié</li></ul>
+          <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B" target="_blank" rel="noopener">Demander un devis</a>
         </div>
       </div>
       <p className="plan-note">Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois.</p>

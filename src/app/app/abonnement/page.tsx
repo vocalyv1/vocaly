@@ -100,13 +100,6 @@ export default async function BillingPage() {
         pendingId={pendingPayment?.id ?? null}
       />
 
-      <Card className="mt-6">
-        <h2 className="mb-1 text-lg font-medium">Besoin de plus ?</h2>
-        <p className="text-sm text-gris">
-          Plusieurs agents, plusieurs numéros, plus de minutes ou une mise en place complète avec notre équipe : offre Accompagnement sur devis.{" "}
-          <a className="underline" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Accompagnement" target="_blank" rel="noopener">Demander un devis sur WhatsApp</a>
-        </p>
-      </Card>
 
       {payments && payments.length > 0 && (
         <Card className="mt-6">

@@ -67,7 +67,7 @@ export function BillingForm(p: Props) {
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {p.plans.map((x) => {
           const isSel = kind === "subscription" && plan === x.id;
           const full = x[period];
@@ -88,6 +88,20 @@ export function BillingForm(p: Props) {
             </button>
           );
         })}
+        <div className="flex flex-col rounded-3xl border-2 border-transparent bg-surface p-6">
+          <span className="text-lg font-semibold">Business+</span>
+          <p className="mt-3 text-3xl font-medium">Sur devis</p>
+          <p className="text-sm text-gris">Plusieurs agents, plusieurs numéros, gros volumes d&apos;appels.</p>
+          <ul className="mt-4 space-y-1.5 text-sm">
+            {["Minutes adaptées à votre volume", "Plusieurs agents et numéros +242", "Mise en place complète avec notre équipe", "Suivi dédié"].map((f) => (
+              <li key={f} className="flex gap-2"><span className="text-traite">✓</span>{f}</li>
+            ))}
+          </ul>
+          <a href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B" target="_blank" rel="noopener"
+            className="mt-6 inline-block rounded-full border border-ligne px-5 py-2.5 text-center text-sm font-medium transition-colors hover:bg-perle md:mt-auto">
+            Demander un devis
+          </a>
+        </div>
       </div>
 
       {p.active && (
