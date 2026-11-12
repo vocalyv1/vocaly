@@ -19,7 +19,7 @@ export function SourceItem({ source: s }: { source: Source }) {
   const statusCls = s.status === "ready" ? "text-traite" : s.status === "error" ? "text-red-600" : "text-gris";
 
   return (
-    <div className="rounded-2xl border border-ligne bg-surface p-4">
+    <div className="rounded-3xl bg-surface p-4">
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="rounded-full bg-perle px-2 py-0.5 font-semibold">{KIND_LABELS[s.kind] ?? s.kind}</span>
         {s.kind !== "faq" && <span className="text-gris">{CATEGORY_LABELS[s.category] ?? s.category}</span>}

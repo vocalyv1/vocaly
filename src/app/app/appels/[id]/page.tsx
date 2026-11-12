@@ -34,7 +34,7 @@ export default async function CallPage({ params }: { params: Promise<{ id: strin
     <div>
       <Link href="/app/appels" className="text-sm text-gris hover:text-noir">← Tous les appels</Link>
       <div className="mb-6 mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">{r?.request_type ?? (c.channel === "web_test" ? "Test navigateur" : "Appel")}</h1>
+        <h1 className="text-3xl">{r?.request_type ?? (c.channel === "web_test" ? "Test navigateur" : "Appel")}</h1>
         <StatusBadge status={c.status} />
         {c.channel === "web_test" && <span className="rounded-full border border-ligne px-2 py-0.5 text-xs">Test</span>}
       </div>
@@ -47,7 +47,7 @@ export default async function CallPage({ params }: { params: Promise<{ id: strin
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <div className="space-y-6">
           <Card>
-            <h2 className="mb-3 text-lg font-bold">Résumé</h2>
+            <h2 className="mb-3 text-lg font-medium">Résumé</h2>
             {c.report_status === "ready" && r ? (
               <>
                 <p className="mb-4">{r.summary}</p>
@@ -67,12 +67,12 @@ export default async function CallPage({ params }: { params: Promise<{ id: strin
             )}
           </Card>
           <Card>
-            <h2 className="mb-3 text-lg font-bold">Suivi</h2>
+            <h2 className="mb-3 text-lg font-medium">Suivi</h2>
             <CallActions id={c.id} status={c.status} canRetry={c.report_status === "error"} />
           </Card>
         </div>
         <Card>
-          <h2 className="mb-3 text-lg font-bold">Transcription</h2>
+          <h2 className="mb-3 text-lg font-medium">Transcription</h2>
           {turns.length === 0 ? (
             <p className="text-sm text-gris">Aucune transcription.</p>
           ) : (

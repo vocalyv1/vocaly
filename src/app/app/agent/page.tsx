@@ -38,7 +38,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
       )}
       <div className="mb-6 grid gap-4 md:grid-cols-2">
         <Card>
-          <h2 className="text-lg font-bold">Publication</h2>
+          <h2 className="text-lg font-medium">Publication</h2>
           <p className="mt-1 text-sm text-gris">
             {agent.published_version === 0
               ? "Pas encore publié. Les modifications restent un brouillon tant que vous ne publiez pas."
@@ -51,8 +51,8 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
             L&apos;agent publié répond aux appels une fois votre numéro connecté (<Link href="/app/telephone" className="underline">Téléphone</Link>).
           </p>
         </Card>
-        <Card>
-          <h2 className="mb-1 text-lg font-bold">Tester le brouillon</h2>
+        <Card className="scroll-mt-24">
+          <h2 id="tester" className="mb-1 text-lg font-medium">Tester le brouillon</h2>
           <TestWidget agentId={agent.provider_test_agent_id} />
         </Card>
       </div>

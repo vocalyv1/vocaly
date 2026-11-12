@@ -14,6 +14,7 @@
   --color-surface: #FFFFFF;
   --color-sur-brand: #FFFFFF;
   --color-traite: #16A34A;
+  --font-display: "Outfit", "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
@@ -44,4 +45,54 @@ h1, h2 {
   .input {
     @apply w-full rounded-xl border border-ligne bg-surface px-4 py-3 outline-none focus:border-noir;
   }
+}
+
+/* ---------- Espace client : style « tableau de bord » ---------- */
+.app-shell {
+  font-family: var(--font-display);
+  background: var(--color-perle);
+  min-height: 100vh;
+}
+[data-theme="dark"] .app-shell { background: var(--color-fond); }
+.app-shell h1, .app-shell h2 { letter-spacing: -0.03em; font-weight: 500; }
+
+/* Entrée de page : fondu + léger flou + glissement. */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.page-in > * > * { animation: page-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.page-in > * > *:nth-child(2) { animation-delay: 0.05s; }
+.page-in > * > *:nth-child(3) { animation-delay: 0.1s; }
+.page-in > * > *:nth-child(4) { animation-delay: 0.15s; }
+.page-in > * > *:nth-child(5) { animation-delay: 0.2s; }
+.page-in > * > *:nth-child(n + 6) { animation-delay: 0.25s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Barres hachurées de l'histogramme. */
+.hatch {
+  background-image: repeating-linear-gradient(-45deg, var(--color-ligne) 0 2px, transparent 2px 6px);
+  background-color: color-mix(in srgb, var(--color-perle) 60%, transparent);
+}
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.bar-grow { transform-origin: bottom; animation: grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+.pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+.lift { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -12px rgb(0 0 0 / 0.18); }
+
+/* Bascule de thème : révélation circulaire (View Transitions). */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in > * > *, .rise, .bar-grow, .pulse-dot { animation: none !important; }
+  .lift:hover { transform: none; }
 }

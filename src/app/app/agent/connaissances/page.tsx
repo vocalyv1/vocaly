@@ -24,7 +24,7 @@ export default async function KnowledgePage() {
           )}
         </div>
         <Card className="h-fit lg:sticky lg:top-6">
-          <h2 className="mb-4 text-lg font-bold">Ajouter</h2>
+          <h2 className="mb-4 text-lg font-medium">Ajouter</h2>
           <AddKnowledge />
         </Card>
       </div>

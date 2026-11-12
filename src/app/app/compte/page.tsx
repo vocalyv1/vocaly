@@ -15,12 +15,12 @@ export default async function AccountPage() {
       <PageHeader title="Compte" subtitle={user.email ?? undefined} />
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <Card>
-          <h2 className="mb-4 text-lg font-bold">Entreprise et profil</h2>
+          <h2 className="mb-4 text-lg font-medium">Entreprise et profil</h2>
           <AccountForm init={init} />
         </Card>
         <div className="space-y-6">
           <Card>
-            <h2 className="text-lg font-bold">Abonnement</h2>
+            <h2 className="text-lg font-medium">Abonnement</h2>
             <p className="mt-2 text-sm text-gris">Offre avant-première : l&apos;activation et la facturation se font avec l&apos;équipe Vocaly, par Mobile Money.</p>
           </Card>
           <Card>

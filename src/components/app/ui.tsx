@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { PlayOnMount } from "./SoundEffects";
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
+        <h1 className="text-3xl leading-tight md:text-[2.5rem]">{title}</h1>
         {subtitle && <p className="mt-1 text-gris">{subtitle}</p>}
       </div>
       {action}
@@ -13,12 +14,12 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
 }
 
 export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-2xl border border-ligne bg-surface p-5 md:p-6 ${className}`}>{children}</section>;
+  return <section className={`rounded-3xl bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/0.04)] md:p-6 ${className}`}>{children}</section>;
 }
 
 export function Empty({ title, text, href, cta }: { title: string; text: string; href?: string; cta?: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-ligne p-10 text-center">
+    <div className="rounded-3xl border border-dashed border-ligne bg-surface/60 p-10 text-center">
       <p className="font-semibold">{title}</p>
       <p className="mx-auto mt-2 max-w-md text-sm text-gris">{text}</p>
       {href && cta && (
@@ -37,7 +38,12 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "error" | 
       : tone === "ok"
         ? "border-green-300 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200"
         : "border-ligne bg-perle text-noir";
-  return <div className={`rounded-xl border px-4 py-3 text-sm ${cls}`}>{children}</div>;
+  return (
+    <div className={`rise rounded-2xl border px-4 py-3 text-sm ${cls}`}>
+      {tone !== "info" && <PlayOnMount kind={tone === "ok" ? "success" : "error"} />}
+      {children}
+    </div>
+  );
 }
 
 export function Button({ children, variant = "primary", ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "danger" }) {
@@ -48,7 +54,7 @@ export function Button({ children, variant = "primary", ...props }: React.Button
         ? "border border-red-300 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950"
         : "border border-ligne hover:bg-perle";
   return (
-    <button {...props} className={`rounded-full px-5 py-2.5 text-sm font-semibold disabled:opacity-50 ${cls} ${props.className ?? ""}`}>
+    <button {...props} className={`rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 ${cls} ${props.className ?? ""}`}>
       {children}
     </button>
   );
@@ -88,4 +94,28 @@ export function formatDuration(sec: number | null | undefined) {
 export function formatDate(iso: string | null | undefined, tz = "Africa/Brazzaville") {
   if (!iso) return "Non communiqué";
   return new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: tz }).format(new Date(iso));
+}
+
+// Pastille d'état avec point animé (ex. « Agent en ligne »).
+export function LivePill({ on, label }: { on: boolean; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs">
+      <span className={`h-2 w-2 rounded-full ${on ? "pulse-dot bg-noir text-noir" : "bg-gris/50"}`} />
+      {label}
+    </span>
+  );
+}
+
+// Onglets segmentés (liens) : l'actif est une pastille blanche sur fond perle.
+export function Segmented({ items, active }: { items: { href: string; label: string; value: string }[]; active: string }) {
+  return (
+    <div className="inline-flex rounded-full bg-surface p-1">
+      {items.map((i) => (
+        <Link key={i.value} href={i.href} scroll={false}
+          className={`rounded-full px-3 py-1 text-xs transition-all duration-300 ${i.value === active ? "bg-brand text-sur-brand" : "text-gris hover:text-noir"}`}>
+          {i.label}
+        </Link>
+      ))}
+    </div>
+  );
 }

@@ -29,7 +29,7 @@ export function AgentForm({ initial }: { initial: AgentSettings }) {
       className="space-y-6"
     >
       <Card>
-        <h2 className="mb-4 text-lg font-bold">Identité</h2>
+        <h2 className="mb-4 text-lg font-medium">Identité</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Nom de l'agent" hint="Le nom qu'il donne au téléphone.">
             <input className="input" value={s.name} onChange={(e) => set("name", e.target.value)} maxLength={40} />
@@ -57,7 +57,7 @@ export function AgentForm({ initial }: { initial: AgentSettings }) {
       </Card>
 
       <Card>
-        <h2 className="mb-4 text-lg font-bold">Accueil</h2>
+        <h2 className="mb-4 text-lg font-medium">Accueil</h2>
         <Field label="Message d'accueil" hint="La première phrase entendue par l'appelant.">
           <textarea className="input min-h-20" value={s.greeting} onChange={(e) => set("greeting", e.target.value)} />
         </Field>
@@ -68,7 +68,7 @@ export function AgentForm({ initial }: { initial: AgentSettings }) {
       </Card>
 
       <Card>
-        <h2 className="mb-4 text-lg font-bold">Comportement</h2>
+        <h2 className="mb-4 text-lg font-medium">Comportement</h2>
         <div className="space-y-4">
           <Field label="Instructions" hint="Ce que fait l'agent, comment il présente l'entreprise, ce qu'il propose.">
             <textarea className="input min-h-56 font-mono text-sm" value={s.instructions} onChange={(e) => set("instructions", e.target.value)} />
@@ -95,7 +95,7 @@ export function AgentForm({ initial }: { initial: AgentSettings }) {
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Transferts d&apos;appel</h2>
+          <h2 className="text-lg font-medium">Transferts d&apos;appel</h2>
           {s.transfer_rules.length < 5 && (
             <Button type="button" variant="ghost" onClick={() => set("transfer_rules", [...s.transfer_rules, { label: "", phone: "", when: "" }])}>+ Ajouter</Button>
           )}
@@ -114,7 +114,7 @@ export function AgentForm({ initial }: { initial: AgentSettings }) {
         <p className="mt-3 text-xs text-gris">Le transfert fonctionne une fois votre numéro connecté.</p>
       </Card>
 
-      <div className="sticky bottom-4 flex flex-wrap items-center gap-3 rounded-2xl border border-ligne bg-surface p-3 shadow-sm">
+      <div className="sticky bottom-4 flex flex-wrap items-center gap-3 rounded-3xl bg-surface p-3 shadow-sm">
         <Button type="submit" disabled={pending}>{pending ? "Enregistrement…" : "Enregistrer le brouillon"}</Button>
         {result && <div className="flex-1"><Notice tone={result.ok ? "ok" : "error"}>{result.message}</Notice></div>}
       </div>

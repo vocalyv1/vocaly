@@ -14,21 +14,21 @@ export default async function PhonePage() {
       <Card className="mb-6">
         <p className="text-sm text-gris">Statut</p>
         {agent.phone_status === "connected" ? (
-          <p className="mt-1 text-xl font-bold text-traite">Connecté{agent.phone_number && ` : ${agent.phone_number}`}</p>
+          <p className="mt-1 text-xl font-medium text-traite">Connecté{agent.phone_number && ` : ${agent.phone_number}`}</p>
         ) : agent.phone_status === "configuring" ? (
           <>
-            <p className="mt-1 text-xl font-bold">Mise en service en cours</p>
+            <p className="mt-1 text-xl font-medium">Mise en service en cours</p>
             <p className="mt-1 text-sm text-gris">
               Demande de {MODE_LABEL[agent.phone_mode ?? ""] ?? "numéro"} envoyée le {formatDate(req.requested_at, business.timezone)}.
               Le statut passera à « Connecté » uniquement quand l&apos;opérateur aura confirmé la ligne et qu&apos;un appel d&apos;essai aura abouti.
             </p>
           </>
         ) : agent.phone_status === "error" ? (
-          <p className="mt-1 text-xl font-bold text-red-600">Problème sur la ligne : l&apos;équipe Vocaly vous contacte.</p>
+          <p className="mt-1 text-xl font-medium text-red-600">Problème sur la ligne : l&apos;équipe Vocaly vous contacte.</p>
         ) : agent.phone_status === "disabled" ? (
-          <p className="mt-1 text-xl font-bold">Désactivé</p>
+          <p className="mt-1 text-xl font-medium">Désactivé</p>
         ) : (
-          <p className="mt-1 text-xl font-bold">Aucun numéro connecté</p>
+          <p className="mt-1 text-xl font-medium">Aucun numéro connecté</p>
         )}
         {agent.phone_status === "connected" && agent.published_version === 0 && (
           <div className="mt-3"><Notice tone="error">Votre agent n&apos;est pas encore publié : publiez-le depuis « Mon agent » pour qu&apos;il réponde.</Notice></div>
@@ -36,7 +36,7 @@ export default async function PhonePage() {
       </Card>
       {(agent.phone_status === "not_configured" || agent.phone_status === "error") && (
         <Card>
-          <h2 className="mb-1 text-lg font-bold">Demander un numéro</h2>
+          <h2 className="mb-1 text-lg font-medium">Demander un numéro</h2>
           <p className="mb-5 text-sm text-gris">Numéros congolais (+242). La mise en service est faite avec vous par l&apos;équipe Vocaly.</p>
           <PhoneForm />
         </Card>

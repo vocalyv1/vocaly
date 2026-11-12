@@ -59,9 +59,9 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
           cta="Tester mon agent"
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-ligne bg-surface">
+        <div className="overflow-hidden rounded-3xl bg-surface">
           {calls.map((c) => (
-            <Link key={c.id} href={`/app/appels/${c.id}`} className="flex flex-col gap-1 border-b border-ligne p-4 last:border-b-0 hover:bg-perle md:flex-row md:items-center md:gap-4">
+            <Link key={c.id} href={`/app/appels/${c.id}`} className="flex flex-col gap-1 border-b border-ligne p-4 last:border-b-0 transition-colors hover:bg-perle md:flex-row md:items-center md:gap-4">
               <div className="w-40 shrink-0 text-sm text-gris">{formatDate(c.started_at ?? c.created_at, business.timezone)}</div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">
