@@ -19,6 +19,7 @@ create table if not exists public.payments (
   plan text,
   period text check (period in ('monthly', 'yearly')),
   amount int not null check (amount > 0),
+  minutes int not null check (minutes > 0),            -- minutes par mois de l'offre, ou minutes de la recharge
   currency text not null default 'XAF',
   early_bird boolean not null default false,
   provider text not null default 'pawapay',
@@ -60,15 +61,15 @@ begin
 
   if p.kind = 'topup' then
     if not found then return 'no_subscription'; end if;
-    update public.subscriptions set extra_seconds = extra_seconds + 100 * 60, last_payment_ref = p_id::text, updated_at = now()
+    update public.subscriptions set extra_seconds = extra_seconds + p.minutes * 60, last_payment_ref = p_id::text, updated_at = now()
       where business_id = p.business_id;
     return 'topup';
   end if;
 
   step := case when p.period = 'yearly' then interval '1 year' else interval '1 month' end;
-  minutes := case p.plan when 'essentiel' then 100 when 'pro' then 300 else 0 end;
+  minutes := p.minutes;
 
-  if found and s.status = 'active' and s.paid_until > now() and s.plan = p.plan and s.period = p.period then
+  if found and s.status = 'active' and s.paid_until > now() and s.plan = p.plan and s.period = p.period and s.minutes_included = minutes then
     -- Renouvellement anticipé : la nouvelle période s'ajoute à la fin de la période en cours.
     update public.subscriptions set paid_until = s.paid_until + step, last_payment_ref = p_id::text, payment_provider = p.provider,
       early_bird_until = case when p.early_bird and s.early_bird_until is null then now() + interval '1 year' else s.early_bird_until end,

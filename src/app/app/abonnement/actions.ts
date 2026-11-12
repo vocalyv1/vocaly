@@ -34,14 +34,17 @@ export async function startPayment(_: PayState, form: FormData): Promise<PayStat
   const sub = (subRow ?? null) as Subscription | null;
 
   let amount: number;
+  let minutes: number;
   let early = false;
   if (p.data.kind === "topup") {
     if (!isActive(sub)) return { ok: false, message: "Une recharge demande un abonnement actif." };
     amount = TOPUP.amount;
+    minutes = TOPUP.minutes;
   } else {
     if (!p.data.plan || !p.data.period || !PLANS[p.data.plan]) return { ok: false, message: "Choisissez une offre." };
     early = (await earlyBirdFor(sub)).eligible;
     amount = planPrice(p.data.plan, p.data.period, early);
+    minutes = PLANS[p.data.plan].minutes;
   }
 
   const db = createAdminClient();
@@ -53,7 +56,7 @@ export async function startPayment(_: PayState, form: FormData): Promise<PayStat
   const id = randomUUID();
   const { error } = await db.from("payments").insert({
     id, business_id: business.id, kind: p.data.kind, plan: p.data.kind === "subscription" ? p.data.plan : null,
-    period: p.data.kind === "subscription" ? p.data.period : null, amount, currency: "XAF", early_bird: early,
+    period: p.data.kind === "subscription" ? p.data.period : null, amount, minutes, currency: "XAF", early_bird: early,
     operator: p.data.operator, phone, created_by: user.id,
   });
   if (error) {
