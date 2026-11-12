@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { AgentDraft } from "@/lib/agent/generate";
 import { VOICES } from "@/lib/agent/voices";
 import { BRAND } from "@/lib/brand";
@@ -8,9 +9,10 @@ import { BRAND } from "@/lib/brand";
 // Écran « l'utilisateur corrige au lieu d'écrire » : tout est pré-rempli par le quiz.
 export default function AgentReviewPage() {
   const [draft, setDraft] = useState<AgentDraft | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("onboarding");
+    const raw = localStorage.getItem("vocaly-onboarding");
     if (raw) setDraft(JSON.parse(raw).draft);
   }, []);
 
@@ -27,7 +29,7 @@ export default function AgentReviewPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-2xl font-semibold text-noir">Votre agent est prêt</h1>
-      <p className="mt-1 text-gris">Relisez et corrigez si besoin. Vous ajouterez sa mémoire à l&apos;étape suivante.</p>
+      <p className="mt-1 text-gris">Relisez et corrigez si besoin. Vous ajouterez ses connaissances juste après.</p>
 
       <section className="mt-8 grid gap-6">
         <Field label="Nom de l'agent">
@@ -101,13 +103,13 @@ export default function AgentReviewPage() {
         <button
           type="button"
           onClick={() => {
-            const raw = JSON.parse(sessionStorage.getItem("onboarding") ?? "{}");
-            sessionStorage.setItem("onboarding", JSON.stringify({ ...raw, draft }));
-            // Étape suivante (jour 3) : mémoire de l'agent (URL ou documents).
+            const raw = JSON.parse(localStorage.getItem("vocaly-onboarding") ?? "{}");
+            localStorage.setItem("vocaly-onboarding", JSON.stringify({ ...raw, draft }));
+            router.push("/onboarding/enregistrer");
           }}
           className="rounded-xl bg-brand px-6 py-3 font-medium text-sur-brand"
         >
-          Continuer vers la mémoire
+          Enregistrer mon agent
         </button>
       </div>
     </main>

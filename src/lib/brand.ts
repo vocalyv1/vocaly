@@ -2,7 +2,7 @@
 export const BRAND = {
   name: "Vocaly",
   // Nom proposé par défaut à l'agent ; chaque utilisateur choisit ensuite le sien.
-  agentName: "Grace",
+  agentName: "Daniel",
   lockAgentName: false,
   tagline: "Votre agent téléphonique IA, prêt en 5 minutes.",
   supportLanguage: "fr",

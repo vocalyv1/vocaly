@@ -1,5 +1,5 @@
 import type { QuizAnswers } from "@/lib/quiz";
-import { VOICES } from "@/lib/agent/voices";
+import { DEFAULT_VOICE_ID } from "@/lib/agent/voices";
 import { BRAND } from "@/lib/brand";
 
 // Génère une première configuration d'agent à partir du quiz.
@@ -104,7 +104,7 @@ export function generateAgent(a: QuizAnswers): AgentDraft {
 
   return {
     name: agentName,
-    voiceId: VOICES[0].id,
+    voiceId: DEFAULT_VOICE_ID,
     role: GOAL_TEXT[a.goal].replace("Ton rôle principal est de ", "").replace(/\.$/, ""),
     instructions,
     greeting: `Bonjour, ${a.businessName}, ${agentName} à votre écoute. Je suis un assistant virtuel et cet appel peut être enregistré. Comment puis-je vous aider ?`,

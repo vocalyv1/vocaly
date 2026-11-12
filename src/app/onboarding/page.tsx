@@ -25,7 +25,7 @@ export default function OnboardingPage() {
     const parsed = QuizAnswersSchema.safeParse(answers);
     if (!parsed.success) return;
     const draft = generateAgent(parsed.data);
-    sessionStorage.setItem("onboarding", JSON.stringify({ answers: parsed.data, draft }));
+    localStorage.setItem("vocaly-onboarding", JSON.stringify({ answers: parsed.data, draft }));
     router.push("/onboarding/agent");
   }
 

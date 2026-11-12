@@ -1,0 +1,66 @@
+import Link from "next/link";
+import { AgentSettingsSchema, type AgentSettings } from "@/lib/agent/schema";
+import { getWorkspace } from "@/lib/workspace";
+import { Card, Empty, Notice, PageHeader, formatDate } from "@/components/app/ui";
+import { AgentForm } from "./AgentForm";
+import { PublishBar } from "./PublishBar";
+import { TestWidget } from "./TestWidget";
+
+export default async function AgentPage({ searchParams }: { searchParams: Promise<{ bienvenue?: string }> }) {
+  const { agent, business } = await getWorkspace();
+  const { bienvenue } = await searchParams;
+  if (!agent) return <Empty title="Aucun agent" text="Votre agent n'a pas encore été créé." href="/onboarding" cta="Créer mon agent" />;
+
+  const raw = {
+    name: agent.name,
+    voice_id: agent.voice_id,
+    tone: ["warm", "formal", "direct", "dynamic", "professional"].includes(agent.tone) ? agent.tone : "warm",
+    greeting: agent.greeting,
+    speaks_first: agent.speaks_first,
+    instructions: agent.instructions,
+    missions: agent.missions ?? "",
+    forbidden: agent.forbidden ?? "",
+    unknown_behavior: agent.unknown_behavior,
+    unhappy_behavior: agent.unhappy_behavior ?? "",
+    max_call_seconds: agent.max_call_seconds,
+    transfer_rules: agent.transfer_rules ?? [],
+  };
+  // Données anciennes ou incomplètes : on les affiche telles quelles, la validation se fait à l'enregistrement.
+  const parsed = AgentSettingsSchema.safeParse(raw);
+  const initial = parsed.success ? parsed.data : (raw as AgentSettings);
+  const hasChanges = !agent.published_at || new Date(agent.updated_at) > new Date(agent.published_at);
+
+  return (
+    <div>
+      <PageHeader title={`Mon agent : ${agent.name}`} subtitle={`L'assistant téléphonique de ${business.name}.`} />
+      {bienvenue && (
+        <div className="mb-6"><Notice tone="ok">Votre agent est enregistré. Relisez ses réglages, testez-le ci-dessous, puis publiez-le.</Notice></div>
+      )}
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <Card>
+          <h2 className="text-lg font-bold">Publication</h2>
+          <p className="mt-1 text-sm text-gris">
+            {agent.published_version === 0
+              ? "Pas encore publié. Les modifications restent un brouillon tant que vous ne publiez pas."
+              : `Version ${agent.published_version} en ligne depuis le ${formatDate(agent.published_at, business.timezone)}.`}
+            {agent.published_version > 0 && hasChanges && " Le brouillon contient des modifications non publiées."}
+          </p>
+          <div className="mt-4"><PublishBar hasChanges={hasChanges} version={agent.published_version} /></div>
+          {agent.sync_error && <div className="mt-3"><Notice tone="error">{agent.sync_error}</Notice></div>}
+          <p className="mt-4 text-xs text-gris">
+            L&apos;agent publié répond aux appels une fois votre numéro connecté (<Link href="/app/telephone" className="underline">Téléphone</Link>).
+          </p>
+        </Card>
+        <Card>
+          <h2 className="mb-1 text-lg font-bold">Tester le brouillon</h2>
+          <TestWidget agentId={agent.provider_test_agent_id} />
+        </Card>
+      </div>
+      <p className="mb-4 text-sm text-gris">
+        Ce que l&apos;agent sait de votre entreprise (FAQ, documents, site) se gère dans{" "}
+        <Link href="/app/agent/connaissances" className="font-semibold underline">Connaissances</Link>.
+      </p>
+      <AgentForm initial={initial} />
+    </div>
+  );
+}

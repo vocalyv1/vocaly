@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 // Thème de base : clair (fond blanc, logo noir). Thème secondaire : sombre, au choix de l'utilisateur.
-export function ThemeToggle() {
+export function ThemeToggle({ inline = false }: { inline?: boolean }) {
   const [dark, setDark] = useState(false);
   const pathname = usePathname();
 
@@ -23,14 +23,19 @@ export function ThemeToggle() {
   }
 
   // Le site vitrine a son propre bouton dans son en-tête.
-  if (pathname === "/") return null;
+  // L'espace client l'affiche dans sa barre latérale (variante « inline »).
+  if (!inline && (pathname === "/" || pathname.startsWith("/app"))) return null;
 
   return (
     <button
       type="button"
       onClick={toggle}
       aria-label={dark ? "Passer au thème clair" : "Passer au thème sombre"}
-      className="fixed right-4 top-4 z-10 rounded-full border border-ligne bg-surface px-3 py-1.5 text-sm text-gris hover:text-noir"
+      className={
+        inline
+          ? "w-full rounded-lg px-3 py-2 text-left text-sm text-gris hover:bg-perle hover:text-noir"
+          : "fixed right-4 top-4 z-10 rounded-full border border-ligne bg-surface px-3 py-1.5 text-sm text-gris hover:text-noir"
+      }
     >
       {dark ? "☀ Thème clair" : "☾ Thème sombre"}
     </button>
