@@ -2,11 +2,14 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAdminClient, logError } from "@/lib/supabase/admin";
 import { getWorkspace } from "@/lib/workspace";
 import { initiateDeposit, normalizeCongoPhone, pawapayConfigured } from "@/lib/billing/pawapay";
 import { PLANS, TOPUP, planPrice } from "@/lib/billing/plans";
+import { createCheckout, stripeConfigured } from "@/lib/billing/stripe";
+import { siteUrl } from "@/lib/site";
 import { earlyBirdFor, isActive, syncPayment, type Subscription } from "@/lib/billing/subscription";
 
 export type PayState = { ok?: boolean; message?: string; paymentId?: string };
@@ -15,20 +18,27 @@ const Pay = z.object({
   kind: z.enum(["subscription", "topup"]),
   plan: z.enum(["essentiel", "pro"]).optional(),
   period: z.enum(["monthly", "yearly"]).optional(),
-  operator: z.enum(["MTN_MOMO_COG", "AIRTEL_COG"]),
-  phone: z.string().trim().min(6).max(30),
+  method: z.enum(["momo", "card"]).default("momo"),
+  operator: z.enum(["MTN_MOMO_COG", "AIRTEL_COG"]).optional(),
+  phone: z.string().trim().max(30).optional(),
 });
 
 export async function startPayment(_: PayState, form: FormData): Promise<PayState> {
   const { supabase, business, user, role } = await getWorkspace();
   if (role !== "owner" && role !== "admin") return { ok: false, message: "Seul le propriétaire du compte peut payer l'abonnement." };
-  if (!pawapayConfigured()) return { ok: false, message: "Le paiement Mobile Money est en cours d'activation. Contactez-nous sur WhatsApp." };
   const p = Pay.safeParse(Object.fromEntries(form.entries()));
   if (!p.success) return { ok: false, message: "Formulaire incomplet." };
-  const phone = normalizeCongoPhone(p.data.phone);
-  if (!phone) return { ok: false, message: "Numéro Mobile Money invalide. Exemple : 06 123 45 67." };
-  if (p.data.operator === "MTN_MOMO_COG" && !phone.startsWith("24206")) return { ok: false, message: "Un numéro MTN commence par 06." };
-  if (p.data.operator === "AIRTEL_COG" && !/^2420[45]/.test(phone)) return { ok: false, message: "Un numéro Airtel commence par 05 ou 04." };
+  const card = p.data.method === "card";
+  if (card && !stripeConfigured()) return { ok: false, message: "Le paiement par carte est en cours d'activation. Contactez-nous sur WhatsApp." };
+  if (!card && !pawapayConfigured()) return { ok: false, message: "Le paiement Mobile Money est en cours d'activation. Contactez-nous sur WhatsApp." };
+  let phone: string | null = null;
+  if (!card) {
+    if (!p.data.operator) return { ok: false, message: "Choisissez votre opérateur." };
+    phone = normalizeCongoPhone(p.data.phone ?? "");
+    if (!phone) return { ok: false, message: "Numéro Mobile Money invalide. Exemple : 06 123 45 67." };
+    if (p.data.operator === "MTN_MOMO_COG" && !phone.startsWith("24206")) return { ok: false, message: "Un numéro MTN commence par 06." };
+    if (p.data.operator === "AIRTEL_COG" && !/^2420[45]/.test(phone)) return { ok: false, message: "Un numéro Airtel commence par 05 ou 04." };
+  }
 
   const { data: subRow } = await supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle();
   const sub = (subRow ?? null) as Subscription | null;
@@ -48,24 +58,40 @@ export async function startPayment(_: PayState, form: FormData): Promise<PayStat
   }
 
   const db = createAdminClient();
-  // Un seul paiement en attente à la fois.
+  // Un seul paiement Mobile Money en attente à la fois.
   const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-  const { data: pending } = await db.from("payments").select("id").eq("business_id", business.id).eq("status", "pending").gte("created_at", since).limit(1).maybeSingle();
+  const { data: pending } = card ? { data: null } : await db.from("payments").select("id").eq("business_id", business.id).eq("provider", "pawapay").eq("status", "pending").gte("created_at", since).limit(1).maybeSingle();
   if (pending) return { ok: true, paymentId: pending.id, message: "Un paiement est déjà en attente de validation sur votre téléphone." };
 
   const id = randomUUID();
   const { error } = await db.from("payments").insert({
     id, business_id: business.id, kind: p.data.kind, plan: p.data.kind === "subscription" ? p.data.plan : null,
     period: p.data.kind === "subscription" ? p.data.period : null, amount, minutes, currency: "XAF", early_bird: early,
-    operator: p.data.operator, phone, created_by: user.id,
+    provider: card ? "stripe" : "pawapay", operator: card ? null : p.data.operator, phone, created_by: user.id,
   });
   if (error) {
     await logError("pawapay", "Création du paiement impossible", { error: error.message }, business.id);
     return { ok: false, message: "Paiement impossible pour le moment. Réessayez." };
   }
 
+  if (card) {
+    let url: string | null = null;
+    try {
+      const label = p.data.kind === "topup" ? `Vocaly, recharge ${TOPUP.minutes} minutes`
+        : `Vocaly ${PLANS[p.data.plan!].name}, ${p.data.period === "yearly" ? "1 an" : "1 mois"}`;
+      const session = await createCheckout({ paymentId: id, amount, label, email: user.email ?? null, siteUrl: await siteUrl() });
+      await db.from("payments").update({ provider_ref: session.id }).eq("id", id);
+      url = session.url;
+    } catch (e) {
+      await db.from("payments").update({ status: "failed", failure_reason: "Session Stripe impossible" }).eq("id", id);
+      await logError("stripe", "Création de la session impossible", { id, error: String(e) }, business.id);
+    }
+    if (!url) return { ok: false, message: "Le paiement par carte est indisponible pour le moment. Réessayez." };
+    redirect(url);
+  }
+
   try {
-    const r = await initiateDeposit({ depositId: id, phone, operator: p.data.operator, amount });
+    const r = await initiateDeposit({ depositId: id, phone: phone!, operator: p.data.operator!, amount });
     const status = r.body?.status as string | undefined;
     if (!r.ok || (status !== "ACCEPTED" && status !== "DUPLICATE_IGNORED")) {
       const fr = r.body?.failureReason as { failureCode?: string; failureMessage?: string } | undefined;

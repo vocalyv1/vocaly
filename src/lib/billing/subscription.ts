@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient, logError } from "@/lib/supabase/admin";
 import { getDeposit } from "./pawapay";
 import { EARLY_BIRD } from "./plans";
+import { stripe, stripeConfigured } from "./stripe";
 
 export type Subscription = {
   business_id: string; plan: string; period: string; minutes_included: number; status: string;
@@ -23,12 +24,53 @@ export async function earlyBirdFor(sub: Subscription | null) {
   return { eligible: left > 0, left };
 }
 
-// Relit le dépôt chez PawaPay et active l'abonnement seulement si le paiement est confirmé, au bon montant.
+type PaymentRow = { id: string; business_id: string; amount: number; currency: string; status: string; provider: string; provider_ref: string | null };
+
+async function activate(p: PaymentRow, payload: unknown, source: string) {
+  const { error } = await createAdminClient().rpc("activate_payment", { p_id: p.id, p_payload: payload });
+  if (error) {
+    await logError(source, "Activation impossible", { paymentId: p.id, error: error.message }, p.business_id);
+    return "pending";
+  }
+  return "completed";
+}
+
+// Relit le paiement chez le prestataire (PawaPay ou Stripe) et active l'abonnement seulement s'il est confirmé, au bon montant.
 export async function syncPayment(paymentId: string) {
   const db = createAdminClient();
-  const { data: p } = await db.from("payments").select("id, business_id, amount, currency, status").eq("id", paymentId).maybeSingle();
+  const { data } = await db.from("payments").select("id, business_id, amount, currency, status, provider, provider_ref").eq("id", paymentId).maybeSingle();
+  const p = data as PaymentRow | null;
   if (!p) return "not_found";
-  if (p.status !== "pending") return p.status as string;
+  if (p.status !== "pending") return p.status;
+  return p.provider === "stripe" ? syncStripe(p) : syncPawapay(p);
+}
+
+async function syncStripe(p: PaymentRow) {
+  if (!stripeConfigured() || !p.provider_ref) return "pending";
+  const db = createAdminClient();
+  const s = await stripe().checkout.sessions.retrieve(p.provider_ref);
+  if (s.client_reference_id !== p.id) {
+    await logError("stripe", "Session ne correspondant pas au paiement", { paymentId: p.id, session: s.id }, p.business_id);
+    return "pending";
+  }
+  if (s.payment_status === "paid") {
+    if (s.amount_total !== p.amount || s.currency?.toUpperCase() !== p.currency) {
+      await logError("stripe", "Montant ou devise différents", { paymentId: p.id, expected: p.amount, got: s.amount_total, currency: s.currency }, p.business_id);
+      await db.from("payments").update({ status: "failed", failure_reason: "Montant reçu différent" }).eq("id", p.id);
+      return "failed";
+    }
+    return activate(p, { session: s.id, payment_intent: s.payment_intent, amount_total: s.amount_total, currency: s.currency }, "stripe");
+  }
+  if (s.status === "expired") {
+    await db.from("payments").update({ status: "failed", failure_reason: "Paiement non finalisé" }).eq("id", p.id).eq("status", "pending");
+    return "failed";
+  }
+  return "pending";
+}
+
+async function syncPawapay(p: PaymentRow) {
+  const db = createAdminClient();
+  const paymentId = p.id;
   const d = await getDeposit(p.id);
   if (!d.found) return "pending";
   if (d.status === "COMPLETED") {
@@ -37,12 +79,7 @@ export async function syncPayment(paymentId: string) {
       await db.from("payments").update({ status: "failed", failure_reason: "Montant reçu différent", provider_payload: d.raw }).eq("id", p.id);
       return "failed";
     }
-    const { error } = await db.rpc("activate_payment", { p_id: p.id, p_payload: d.raw });
-    if (error) {
-      await logError("pawapay", "Activation impossible", { paymentId, error: error.message }, p.business_id);
-      return "pending";
-    }
-    return "completed";
+    return activate(p, d.raw, "pawapay");
   }
   if (d.status === "FAILED") {
     await db.from("payments").update({ status: "failed", failure_reason: d.failureReason ?? "Paiement refusé", provider_payload: d.raw }).eq("id", p.id).eq("status", "pending");

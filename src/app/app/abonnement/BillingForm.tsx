@@ -10,6 +10,7 @@ type Props = {
   plans: Plan[]; active: boolean; currentPlan: string | null; currentPeriod: "monthly" | "yearly" | null;
   early: { eligible: boolean; left: number | null; discount: number }; topup: { minutes: number; amount: number };
   operators: { value: string; label: string }[]; disabled: boolean; pendingId: string | null;
+  methods: { momo: boolean; card: boolean }; cancelled: boolean; cardReturn: boolean;
 };
 
 const fcfa = (n: number) => `${new Intl.NumberFormat("fr-FR").format(n).replace(/ | /g, " ")} FCFA`;
@@ -19,6 +20,7 @@ export function BillingForm(p: Props) {
   const [period, setPeriod] = useState<"monthly" | "yearly">(p.currentPeriod ?? "monthly");
   const [kind, setKind] = useState<"subscription" | "topup">("subscription");
   const [plan, setPlan] = useState<string>(p.currentPlan ?? "essentiel");
+  const [method, setMethod] = useState<"momo" | "card">(!p.methods.momo && p.methods.card ? "card" : "momo");
   const [operator, setOperator] = useState(p.operators[0]?.value ?? "MTN_MOMO_COG");
   const [state, action, pending] = useActionState<PayState, FormData>(startPayment, {});
   const [waitId, setWaitId] = useState<string | null>(p.pendingId);
@@ -45,6 +47,7 @@ export function BillingForm(p: Props) {
     return () => { stop = true; clearTimeout(t); };
   }, [waitId, router]);
 
+  const methodOn = p.methods[method];
   const selected = p.plans.find((x) => x.id === plan) ?? p.plans[0];
   const amount = kind === "topup" ? p.topup.amount : selected.price[period];
   const sameAsCurrent = p.active && p.currentPlan === plan && p.currentPeriod === period;
@@ -113,7 +116,15 @@ export function BillingForm(p: Props) {
       )}
 
       <Card>
-        <h2 className="mb-1 text-lg font-medium">Payer par Mobile Money</h2>
+        <div className="mb-4 inline-flex rounded-full bg-perle p-1 text-sm">
+          {([["momo", "Mobile Money"], ["card", "Carte bancaire"]] as const).map(([v, label]) => (
+            <button key={v} type="button" onClick={() => setMethod(v)}
+              className={`rounded-full px-4 py-2 transition-colors ${method === v ? "bg-brand text-sur-brand" : "text-gris hover:text-noir"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <h2 className="mb-1 text-lg font-medium">{method === "momo" ? "Payer par Mobile Money" : "Payer par carte bancaire"}</h2>
         <p className="mb-5 text-sm text-gris">
           {kind === "topup" ? `Recharge de ${p.topup.minutes} minutes` : `${selected.name}, ${period === "monthly" ? "1 mois" : "1 an"}`} :{" "}
           <b className="text-noir">{fcfa(amount)}</b>.{" "}
@@ -122,28 +133,37 @@ export function BillingForm(p: Props) {
         <form action={action} className="space-y-4">
           <input type="hidden" name="kind" value={kind} />
           {kind === "subscription" && <><input type="hidden" name="plan" value={plan} /><input type="hidden" name="period" value={period} /></>}
-          <div className="grid gap-2 sm:grid-cols-2">
-            {p.operators.map((o) => (
-              <label key={o.value} className={`cursor-pointer rounded-2xl border p-4 ${operator === o.value ? "border-noir" : "border-ligne"}`}>
-                <input type="radio" name="operator" value={o.value} checked={operator === o.value} onChange={() => setOperator(o.value)} className="sr-only" />
-                <span className="font-semibold">{o.label}</span>
-              </label>
-            ))}
-          </div>
-          <Field label="Numéro Mobile Money" hint="Le numéro qui va payer. Vous recevrez une demande de validation sur ce téléphone.">
-            <input name="phone" inputMode="tel" required className="input" placeholder={operator === "MTN_MOMO_COG" ? "06 123 45 67" : "05 123 45 67"} />
-          </Field>
-          <Button type="submit" disabled={p.disabled || pending || Boolean(waitId)}>
-            {pending ? "Envoi…" : waitId ? "En attente de validation…" : `Payer ${fcfa(amount)}`}
+          <input type="hidden" name="method" value={method} />
+          {method === "momo" ? (
+            <>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {p.operators.map((o) => (
+                <label key={o.value} className={`cursor-pointer rounded-2xl border p-4 ${operator === o.value ? "border-noir" : "border-ligne"}`}>
+                  <input type="radio" name="operator" value={o.value} checked={operator === o.value} onChange={() => setOperator(o.value)} className="sr-only" />
+                  <span className="font-semibold">{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <Field label="Numéro Mobile Money" hint="Le numéro qui va payer. Vous recevrez une demande de validation sur ce téléphone.">
+              <input name="phone" inputMode="tel" required className="input" placeholder={operator === "MTN_MOMO_COG" ? "06 123 45 67" : "05 123 45 67"} />
+            </Field>
+            </>
+          ) : (
+            <p className="text-sm text-gris">Visa ou Mastercard. Vous êtes redirigé vers la page de paiement sécurisée de Stripe, puis vous revenez ici.</p>
+          )}
+          <Button type="submit" disabled={p.disabled || !methodOn || pending || Boolean(waitId)}>
+            {pending ? "Envoi…" : waitId ? "En attente de confirmation…" : method === "card" ? `Payer ${fcfa(amount)} par carte` : `Payer ${fcfa(amount)}`}
           </Button>
+          {!methodOn && <Notice>Ce moyen de paiement est en cours d&apos;activation.</Notice>}
+          {p.cancelled && !waitId && !state.message && <Notice>Paiement par carte annulé. Aucun montant n&apos;a été débité.</Notice>}
           {state.message && !result && <Notice tone={state.ok ? "info" : "error"}>{state.message}</Notice>}
           {waitId && (
             <Notice>
               <span className="pulse-dot mr-2 inline-block h-2 w-2 rounded-full bg-traite" />
-              Demande envoyée. Composez votre code secret sur le téléphone pour valider. Cette page se met à jour toute seule.
+              {state.paymentId || !p.cardReturn ? "Demande envoyée. Composez votre code secret sur le téléphone pour valider." : "Nous vérifions votre paiement par carte."} Cette page se met à jour toute seule.
             </Notice>
           )}
-          {result?.status === "completed" && <Notice tone="ok">Paiement confirmé par l&apos;opérateur. Votre offre est active.</Notice>}
+          {result?.status === "completed" && <Notice tone="ok">Paiement confirmé. Votre offre est active.</Notice>}
           {result?.status === "failed" && <Notice tone="error">Paiement non abouti{result.reason ? ` : ${result.reason}` : ""}. Vous pouvez réessayer.</Notice>}
           {result?.status === "pending" && <Notice>Pas encore de confirmation de l&apos;opérateur. Rechargez la page dans quelques minutes : le paiement sera pris en compte dès sa confirmation.</Notice>}
         </form>

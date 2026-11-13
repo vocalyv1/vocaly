@@ -4,6 +4,7 @@ import { pawapayConfigured, OPERATORS } from "@/lib/billing/pawapay";
 import { EARLY_BIRD, PLANS, TOPUP, PERIOD_LABEL, formatFcfa, isPlan, planPrice, type Period } from "@/lib/billing/plans";
 import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
 import { BillingForm } from "./BillingForm";
+import { stripeConfigured } from "@/lib/billing/stripe";
 
 const STATUS: Record<string, string> = { pending: "En attente", completed: "Payé", failed: "Échoué" };
 
@@ -16,16 +17,19 @@ function formatDay(d: Date, tz: string) {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: tz }).format(d);
 }
 
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ paiement?: string; annule?: string }> }) {
+  const sp = await searchParams;
   const { supabase, business, role } = await getWorkspace();
   const { data: subRow } = await supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle();
   const sub = (subRow ?? null) as Subscription | null;
   const { data: payments } = await supabase
-    .from("payments").select("id, kind, plan, period, amount, operator, status, failure_reason, created_at")
+    .from("payments").select("id, kind, plan, period, amount, operator, provider, status, failure_reason, created_at")
     .eq("business_id", business.id).order("created_at", { ascending: false }).limit(10);
   const active = isActive(sub);
   const early = await earlyBirdFor(sub);
-  const configured = pawapayConfigured();
+  const momoOn = pawapayConfigured();
+  const cardOn = stripeConfigured();
+  const configured = momoOn || cardOn;
   const canPay = role === "owner" || role === "admin";
 
   const prices = (Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => ({
@@ -39,7 +43,7 @@ export default async function BillingPage() {
   const extraMin = Math.floor((sub?.extra_seconds ?? 0) / 60);
   const pct = includedSec ? Math.min(100, Math.round((usedSec / includedSec) * 100)) : 0;
   const resetAt = sub?.usage_period_start ? formatDay(addMonth(sub.usage_period_start), business.timezone) : null;
-  const pendingPayment = payments?.find((p) => p.status === "pending" && Date.now() - new Date(p.created_at).getTime() < 15 * 60 * 1000);
+  const pendingPayment = payments?.find((p) => p.status === "pending" && p.provider !== "stripe" && Date.now() - new Date(p.created_at).getTime() < 15 * 60 * 1000);
 
   return (
     <div>
@@ -81,7 +85,7 @@ export default async function BillingPage() {
       {!configured && (
         <div className="mb-6">
           <Notice>
-            Le paiement Mobile Money directement sur le site est en cours d&apos;activation. En attendant, écrivez-nous sur WhatsApp au{" "}
+            Le paiement en ligne (Mobile Money et carte bancaire) est en cours d&apos;activation. En attendant, écrivez-nous sur WhatsApp au{" "}
             <a className="underline" href="https://wa.me/242057949393" target="_blank" rel="noopener">+242 05 794 93 93</a> pour activer votre offre.
           </Notice>
         </div>
@@ -96,8 +100,11 @@ export default async function BillingPage() {
         early={{ eligible: early.eligible, left: early.left, discount: EARLY_BIRD.discount }}
         topup={{ minutes: TOPUP.minutes, amount: TOPUP.amount }}
         operators={Object.entries(OPERATORS).map(([value, label]) => ({ value, label }))}
-        disabled={!configured || !canPay}
-        pendingId={pendingPayment?.id ?? null}
+        disabled={!canPay}
+        methods={{ momo: momoOn, card: cardOn }}
+        pendingId={(sp.paiement && /^[0-9a-f-]{36}$/i.test(sp.paiement) ? sp.paiement : null) ?? pendingPayment?.id ?? null}
+        cancelled={sp.annule === "1"}
+        cardReturn={Boolean(sp.paiement)}
       />
 
 
@@ -110,7 +117,7 @@ export default async function BillingPage() {
                 <span>
                   {formatDate(p.created_at, business.timezone)} ·{" "}
                   {p.kind === "topup" ? `Recharge ${TOPUP.minutes} min` : `${isPlan(p.plan) ? PLANS[p.plan].name : p.plan} (${PERIOD_LABEL[(p.period as Period) ?? "monthly"]})`}
-                  {" · "}{OPERATORS[p.operator as keyof typeof OPERATORS] ?? p.operator}
+                  {" · "}{p.provider === "stripe" ? "Carte bancaire" : OPERATORS[p.operator as keyof typeof OPERATORS] ?? p.operator}
                 </span>
                 <span className="flex items-center gap-3">
                   <span className="font-medium">{formatFcfa(p.amount)}</span>

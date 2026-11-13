@@ -223,7 +223,7 @@ export default function Home() {
       <div className="section-head">
         <span className="eyebrow">Tarifs</span>
         <h2 className="h2">Moins cher qu’une standardiste, sans engagement.</h2>
-        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money ou Airtel Money quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises.</p>
+        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises.</p>
       </div>
       <div className="plans">
         {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => (
@@ -261,7 +261,7 @@ export default function Home() {
           <ul className="offer-list">
             <li>Prix de lancement réduit</li>
             <li>Mise en place de votre agent avec nous</li>
-            <li>Paiement par MTN Mobile Money ou Airtel Money</li>
+            <li>Paiement par Mobile Money (MTN, Airtel) ou carte bancaire</li>
             <li>Vos remarques changent directement le produit</li>
           </ul>
           <Link className="btn btn-primary" href="/onboarding">Réserver ma place</Link>
@@ -297,7 +297,7 @@ export default function Home() {
         </details>
         <details>
           <summary>Combien ça coûte ?</summary>
-          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. L’offre Essentiel coûte {formatFcfa(PLANS.essentiel.monthly)} par mois et l’offre Pro {formatFcfa(PLANS.pro.monthly)}, avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money ou Airtel Money.</p>
+          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. L’offre Essentiel coûte {formatFcfa(PLANS.essentiel.monthly)} par mois et l’offre Pro {formatFcfa(PLANS.pro.monthly)}, avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money, Airtel Money ou carte bancaire.</p>
         </details>
         <details>
           <summary>Puis-je reprendre la main sur un appel ?</summary>
