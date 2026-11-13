@@ -19,15 +19,25 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getUser();
-  if (!data.user && request.nextUrl.pathname.startsWith("/app")) {
+  const path = request.nextUrl.pathname;
+  if (!data.user && path.startsWith("/app")) {
     const url = request.nextUrl.clone();
     url.pathname = "/connexion";
-    url.searchParams.set("next", request.nextUrl.pathname);
+    url.search = "";
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
+  }
+  // Le compte est créé avant le quiz : le visiteur s'inscrit, puis répond aux questions.
+  if (!data.user && path.startsWith("/onboarding")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/inscription";
+    url.search = "";
+    url.searchParams.set("next", path === "/onboarding/enregistrer" ? path : "/onboarding");
     return NextResponse.redirect(url);
   }
   return response;
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/connexion", "/inscription", "/onboarding/enregistrer", "/auth/:path*"],
+  matcher: ["/app/:path*", "/connexion", "/inscription", "/onboarding/:path*", "/auth/:path*"],
 };

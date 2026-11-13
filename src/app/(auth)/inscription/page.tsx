@@ -2,15 +2,22 @@ import Link from "next/link";
 import { AuthForm } from "@/components/AuthForm";
 import { signUp } from "../actions";
 import { safeNext } from "@/lib/site";
+import { TrackView } from "@/components/TrackView";
 
 export const metadata = { title: "Créer un compte · Vocaly" };
 
 export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const next = safeNext((await searchParams).next, "/onboarding/enregistrer");
+  const next = safeNext((await searchParams).next, "/onboarding");
   return (
     <>
+      <TrackView event="signup_view" />
+      <ol className="mb-5 flex gap-2 text-xs font-medium">
+        <li className="rounded-full bg-brand px-3 py-1 text-sur-brand">1. Votre compte</li>
+        <li className="rounded-full bg-perle px-3 py-1 text-gris">2. Votre agent</li>
+        <li className="rounded-full bg-perle px-3 py-1 text-gris">3. Le test</li>
+      </ol>
       <h1 className="text-2xl font-bold text-noir">Créez votre compte</h1>
-      <p className="mt-1 mb-6 text-gris">Pour enregistrer votre agent et le retrouver ensuite.</p>
+      <p className="mt-1 mb-6 text-gris">Ensuite, une dizaine de questions rapides et votre agent est prêt à tester.</p>
       <AuthForm
         action={signUp}
         hidden={{ next }}

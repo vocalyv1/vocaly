@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { QuizAnswersSchema } from "@/lib/quiz";
 import { AgentDraftSchema } from "@/lib/agent/schema";
+import { trackServer } from "@/lib/funnel/server";
 
 const PayloadSchema = z.object({ answers: QuizAnswersSchema, draft: AgentDraftSchema });
 
@@ -74,5 +75,6 @@ export async function saveOnboarding(payload: unknown): Promise<SaveResult> {
       answered.map((f) => ({ agent_id: agent.id, kind: "faq", category: "faq", title: f.q, content: f.a.trim(), status: "pending" })),
     );
   }
+  await trackServer("agent_saved", { userId: user.id, businessId: business.id, meta: { sector: answers.sector, city: answers.city } });
   return { ok: true };
 }

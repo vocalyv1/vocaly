@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { trackServer } from "@/lib/funnel/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { safeNext, siteUrl } from "@/lib/site";
@@ -16,7 +17,7 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
   const fullName = String(form.get("fullName") ?? "").trim();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
-  const next = safeNext(form.get("next"), "/onboarding/enregistrer");
+  const next = safeNext(form.get("next"), "/onboarding");
   if (fullName.length < 2) return { error: "Indiquez votre nom." };
   if (!email.includes("@")) return { error: "Indiquez une adresse e-mail valide." };
   if (password.length < 8) return { error: "Le mot de passe doit contenir au moins 8 caractères." };
@@ -31,6 +32,7 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
     },
   });
   if (error) return { error: authErrorMessage(error.message) };
+  if (data.user) await trackServer("signup_done", { userId: data.user.id });
   if (data.session) redirect(next);
   return { otp: { email, kind: "signup", next } };
 }

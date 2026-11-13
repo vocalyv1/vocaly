@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LandingThemeButton } from "@/components/LandingThemeButton";
 import { CallDemo } from "@/components/CallDemo";
+import { HeroStart } from "@/components/HeroStart";
+import { LandingTracker } from "@/components/LandingTracker";
 import "./landing.css";
 
 // Site vitrine (page d'accueil). Règle Leo Grindarss : un titre qui dit le bénéfice,
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="lp" id="top">
+<LandingTracker />
 <header className="top">
   <div className="wrap">
     <a href="#top" aria-label="Vocaly, accueil"><Logo className="logo" /></a>
@@ -43,11 +46,8 @@ export default function Home() {
         <span className="badge"><span className="dot"></span>Avant-première ouverte · places limitées</span>
         <h1>Plus aucun appel client perdu. <span className="soft">Même à 21 h.</span></h1>
         <p className="lead">Vocaly vous donne un agent téléphonique IA qui décroche à votre place, 24 h/24, en français. Il répond avec vos prix et vos horaires, note les demandes de rendez-vous et vous envoie le résumé de chaque appel.</p>
-        <div className="hero-ctas">
-          <Link className="btn btn-primary" href="/onboarding">Créer mon agent en 5 minutes<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
-          <a className="btn btn-ghost" href="#demo">Voir la démo (1 min)</a>
-        </div>
-        <p className="hero-note"><span>Prêt en 5 minutes</span><span>Sans site web</span><span>Votre agent, votre prénom</span></p>
+        <HeroStart />
+        <p className="hero-note"><span>Prêt en 5 minutes</span><span>Test gratuit dans le navigateur</span><span>Sans site web</span><a href="#demo">Voir la démo (1 min)</a></p>
       </div>
 
       {/* Le produit au centre : un appel réel, puis le résumé */}
@@ -227,9 +227,9 @@ export default function Home() {
           <div className="plan" key={id}>
             <span className={`plan-tag plan-tag-${id}`}>{PLANS[id].tag}</span>
             <span className="plan-name">{PLANS[id].name}</span>
-            <p className="plan-price">{formatFcfa(PLANS[id].monthly)}<span> / mois</span></p>
-            <p className="plan-sub">ou {formatFcfa(PLANS[id].yearly)} / an (−17 %, 2 mois offerts)</p>
-            <p className="plan-early">Avant-première : {formatFcfa(planPrice(id, "monthly", true))} / mois</p>
+            <p className="plan-price">{formatFcfa(Math.round(PLANS[id].yearly / 12))}<span> / mois</span></p>
+            <p className="plan-sub">Facturé {formatFcfa(PLANS[id].yearly)} par an, 2 mois offerts. Au mois, sans engagement : {formatFcfa(PLANS[id].monthly)}.</p>
+            <p className="plan-early">Avant-première : {formatFcfa(Math.round(planPrice(id, "yearly", true) / 12))} / mois en annuel</p>
             <ul className="offer-list">{PLANS[id].features.map((f) => <li key={f}>{f}</li>)}</ul>
             <Link className="btn btn-primary" href="/onboarding">Démarrez</Link>
           </div>

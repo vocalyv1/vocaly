@@ -269,3 +269,17 @@ html:has(.lp) { scroll-behavior: smooth; }
 .lp .plan-tag-pro { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .lp .plan-tag-business { background: var(--bg); }
 @media (max-width: 860px) { .lp .plans { gap: 28px; } }
+
+/* Hero : démarrage avec le nom de l'entreprise */
+.lp .hero-start { display: flex; gap: 8px; margin-top: 36px; max-width: 540px; padding: 6px; border: 1px solid var(--line); border-radius: 18px; background: var(--card, var(--bg)); box-shadow: 0 10px 30px -18px rgba(0,0,0,.35); }
+.lp .hero-start input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--fg); font: inherit; font-size: 17px; padding: 0 14px; }
+.lp .hero-start input::placeholder { color: var(--muted); }
+.lp .hero-start:focus-within { border-color: var(--fg); }
+.lp .hero-start .btn { flex-shrink: 0; }
+.lp .hero-note a { color: var(--fg); font-weight: 600; }
+.lp .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 520px) {
+  .lp .hero-start { flex-direction: column; padding: 8px; }
+  .lp .hero-start input { min-height: 48px; }
+  .lp .hero-start .btn { width: 100%; justify-content: center; }
+}

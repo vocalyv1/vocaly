@@ -156,3 +156,12 @@ h1, h2 {
 .vol-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--color-noir);
   border: 3px solid var(--color-surface); box-shadow: 0 1px 4px rgb(0 0 0 / .25); }
 .vol-range::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--color-noir); border: 3px solid var(--color-surface); }
+
+/* Quiz : entrée de chaque question et mise en valeur des informations ajoutées à l'aperçu de l'agent. */
+@keyframes quiz-step { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+.quiz-step { animation: quiz-step 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes flash { from { background: color-mix(in srgb, var(--color-traite) 30%, transparent); } to { background: transparent; } }
+.flash { animation: flash 1.2s ease-out; border-radius: 6px; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+.pop-in { animation: pop-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .quiz-step, .flash, .pop-in { animation: none; } }

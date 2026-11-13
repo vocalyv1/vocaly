@@ -5,9 +5,12 @@ import { Card, Empty, Notice, PageHeader, formatDate } from "@/components/app/ui
 import { AgentForm } from "./AgentForm";
 import { PublishBar } from "./PublishBar";
 import { TestWidget } from "./TestWidget";
+import { ActivatePanel } from "./ActivatePanel";
+import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
+import { EARLY_BIRD, formatFcfa, planPrice } from "@/lib/billing/plans";
 
 export default async function AgentPage({ searchParams }: { searchParams: Promise<{ bienvenue?: string }> }) {
-  const { agent, business } = await getWorkspace();
+  const { agent, business, supabase } = await getWorkspace();
   const { bienvenue } = await searchParams;
   if (!agent) return <Empty title="Aucun agent" text="Votre agent n'a pas encore été créé." href="/onboarding" cta="Créer mon agent" />;
 
@@ -28,6 +31,21 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
   // Données anciennes ou incomplètes : on les affiche telles quelles, la validation se fait à l'enregistrement.
   const parsed = AgentSettingsSchema.safeParse(raw);
   const initial = parsed.success ? parsed.data : (raw as AgentSettings);
+  const { data: subRow } = await supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle();
+  const sub = (subRow ?? null) as Subscription | null;
+  const active = isActive(sub);
+  let paywall: React.ReactNode = null;
+  if (!active) {
+    const [{ count }, early] = await Promise.all([
+      supabase.from("calls").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_test", true),
+      earlyBirdFor(sub),
+    ]);
+    paywall = (
+      <ActivatePanel agentName={agent.name} testCalls={count ?? 0}
+        fromPrice={formatFcfa(Math.round(planPrice("essentiel", "yearly", early.eligible) / 12))}
+        early={early.eligible ? { left: early.left, discount: EARLY_BIRD.discount } : null} />
+    );
+  }
   const hasChanges = !agent.published_at || new Date(agent.updated_at) > new Date(agent.published_at);
 
   return (
@@ -56,6 +74,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
           <TestWidget agentId={agent.provider_test_agent_id} />
         </Card>
       </div>
+      {paywall}
       <p className="mb-4 text-sm text-gris">
         Ce que l&apos;agent sait de votre entreprise (FAQ, documents, site) se gère dans{" "}
         <Link href="/app/agent/connaissances" className="font-semibold underline">Connaissances</Link>.

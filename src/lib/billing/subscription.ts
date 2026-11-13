@@ -1,8 +1,10 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient, logError } from "@/lib/supabase/admin";
 import { getDeposit } from "./pawapay";
 import { EARLY_BIRD } from "./plans";
 import { stripe, stripeConfigured } from "./stripe";
+import { trackServer } from "@/lib/funnel/server";
 
 export type Subscription = {
   business_id: string; plan: string; period: string; minutes_included: number; status: string;
@@ -24,14 +26,22 @@ export async function earlyBirdFor(sub: Subscription | null) {
   return { eligible: left > 0, left };
 }
 
+// Offre de sortie encore valable pour cette entreprise (lue avec la RLS).
+export async function validExitOffer(supabase: SupabaseClient, businessId: string) {
+  const { data } = await supabase.from("offers").select("id, discount, expires_at, used_at").eq("business_id", businessId).eq("kind", "exit_annual").maybeSingle();
+  if (!data || data.used_at || new Date(data.expires_at) <= new Date()) return null;
+  return data as { id: string; discount: number; expires_at: string };
+}
+
 type PaymentRow = { id: string; business_id: string; amount: number; currency: string; status: string; provider: string; provider_ref: string | null };
 
 async function activate(p: PaymentRow, payload: unknown, source: string) {
-  const { error } = await createAdminClient().rpc("activate_payment", { p_id: p.id, p_payload: payload });
+  const { data, error } = await createAdminClient().rpc("activate_payment", { p_id: p.id, p_payload: payload });
   if (error) {
     await logError(source, "Activation impossible", { paymentId: p.id, error: error.message }, p.business_id);
     return "pending";
   }
+  if (data !== "already") await trackServer("payment_completed", { businessId: p.business_id, meta: { provider: p.provider, amount: p.amount, result: String(data) } });
   return "completed";
 }
 

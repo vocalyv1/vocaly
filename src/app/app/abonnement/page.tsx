@@ -1,8 +1,8 @@
 import { getWorkspace } from "@/lib/workspace";
 import { Card, Notice, PageHeader, formatDate } from "@/components/app/ui";
 import { pawapayConfigured, OPERATORS } from "@/lib/billing/pawapay";
-import { EARLY_BIRD, PLANS, TOPUP, PERIOD_LABEL, formatFcfa, isPlan, planPrice, type Period } from "@/lib/billing/plans";
-import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
+import { ADDON, EARLY_BIRD, PLANS, TOPUP, PERIOD_LABEL, exitOfferPrice, formatFcfa, isPlan, planPrice, type Period } from "@/lib/billing/plans";
+import { earlyBirdFor, isActive, validExitOffer, type Subscription } from "@/lib/billing/subscription";
 import { BillingForm } from "./BillingForm";
 import { stripeConfigured } from "@/lib/billing/stripe";
 
@@ -23,7 +23,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const { data: subRow } = await supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle();
   const sub = (subRow ?? null) as Subscription | null;
   const { data: payments } = await supabase
-    .from("payments").select("id, kind, plan, period, amount, operator, provider, status, failure_reason, created_at")
+    .from("payments").select("id, kind, plan, period, amount, addon_minutes, operator, provider, status, failure_reason, created_at")
     .eq("business_id", business.id).order("created_at", { ascending: false }).limit(10);
   const active = isActive(sub);
   const early = await earlyBirdFor(sub);
@@ -35,7 +35,9 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const prices = (Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => ({
     id, ...PLANS[id],
     price: { monthly: planPrice(id, "monthly", early.eligible), yearly: planPrice(id, "yearly", early.eligible) },
+    exitYearly: exitOfferPrice(id),
   }));
+  const offer = active ? null : await validExitOffer(supabase, business.id);
 
   const includedSec = (sub?.minutes_included ?? 0) * 60;
   const usedSec = sub?.seconds_used ?? 0;
@@ -47,7 +49,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
 
   return (
     <div>
-      <PageHeader title="Abonnement" subtitle="Votre offre, vos minutes et le paiement par Mobile Money." />
+      <PageHeader title="Abonnement" subtitle="Votre offre, vos minutes et le paiement par Mobile Money ou carte." />
 
       {sub && (
         <Card className="mb-6">
@@ -105,6 +107,8 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         pendingId={(sp.paiement && /^[0-9a-f-]{36}$/i.test(sp.paiement) ? sp.paiement : null) ?? pendingPayment?.id ?? null}
         cancelled={sp.annule === "1"}
         cardReturn={Boolean(sp.paiement)}
+        addon={ADDON}
+        offer={offer ? { expiresAt: offer.expires_at, discount: Number(offer.discount) } : null}
       />
 
 
@@ -116,7 +120,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                 <span>
                   {formatDate(p.created_at, business.timezone)} ·{" "}
-                  {p.kind === "topup" ? `Recharge ${TOPUP.minutes} min` : `${isPlan(p.plan) ? PLANS[p.plan].name : p.plan} (${PERIOD_LABEL[(p.period as Period) ?? "monthly"]})`}
+                  {p.kind === "topup" ? `Recharge ${TOPUP.minutes} min` : `${isPlan(p.plan) ? PLANS[p.plan].name : p.plan} (${PERIOD_LABEL[(p.period as Period) ?? "monthly"]})${p.addon_minutes ? ` + ${p.addon_minutes} min` : ""}`}
                   {" · "}{p.provider === "stripe" ? "Carte bancaire" : OPERATORS[p.operator as keyof typeof OPERATORS] ?? p.operator}
                 </span>
                 <span className="flex items-center gap-3">

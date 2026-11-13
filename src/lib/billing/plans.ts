@@ -32,6 +32,13 @@ export const BUSINESS_PLUS_TAG = "Plusieurs lignes, gros volumes";
 // Recharge : 100 minutes supplémentaires, sans date d'expiration.
 export const TOPUP = { minutes: 100, amount: 49_000 };
 
+// Minutes en option au moment de s'abonner : 100 minutes à 39 000 FCFA au lieu de 49 000 (même coût pour nous qu'une recharge).
+export const ADDON = { minutes: 100, amount: 39_000 };
+
+// Offre de sortie : −10 % sur l'annuel pendant 48 h, une seule fois par entreprise, jamais cumulée avec l'avant-première.
+// Pire cas Essentiel annuel : 531 000 FCFA / 12 = 44 250 FCFA par mois pour ~29 000 FCFA de coûts + 4 %.
+export const EXIT_OFFER = { discount: 0.1, hours: 48 };
+
 // Avant-première : −20 % pendant la première année pour les premières entreprises.
 export const EARLY_BIRD = { discount: 0.2, slots: 10 };
 
@@ -42,6 +49,11 @@ export function planPrice(plan: PlanId, period: Period, earlyBird: boolean) {
   const base = PLANS[plan][period];
   // Arrondi à la centaine de francs inférieure.
   return earlyBird ? Math.floor((base * (1 - EARLY_BIRD.discount)) / 100) * 100 : base;
+}
+
+// Prix annuel avec l'offre de sortie (sans avant-première).
+export function exitOfferPrice(plan: PlanId) {
+  return Math.floor((PLANS[plan].yearly * (1 - EXIT_OFFER.discount)) / 100) * 100;
 }
 
 export function formatFcfa(n: number) {

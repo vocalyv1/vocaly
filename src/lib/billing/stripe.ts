@@ -14,11 +14,11 @@ export function stripe() {
 
 // Le FCFA (XAF) est une devise sans décimales chez Stripe : le montant est passé tel quel.
 export async function createCheckout(args: {
-  paymentId: string; amount: number; label: string; email: string | null; siteUrl: string;
+  paymentId: string; items: { label: string; amount: number }[]; email: string | null; siteUrl: string;
 }) {
   return stripe().checkout.sessions.create({
     mode: "payment",
-    line_items: [{ quantity: 1, price_data: { currency: "xaf", unit_amount: args.amount, product_data: { name: args.label } } }],
+    line_items: args.items.map((i) => ({ quantity: 1, price_data: { currency: "xaf", unit_amount: i.amount, product_data: { name: i.label } } })),
     client_reference_id: args.paymentId,
     metadata: { payment_id: args.paymentId },
     payment_intent_data: { metadata: { payment_id: args.paymentId } },

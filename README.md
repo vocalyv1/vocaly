@@ -49,3 +49,27 @@ Production : https://vocaly-theta.vercel.app (Supabase : projet `vrqwwohqdpxtjxl
 npm install
 npm run dev
 ```
+
+## Mesure du parcours (conversion)
+
+Chaque étape est enregistrée dans la table `funnel_events` (migration 0005), écrite uniquement par le serveur
+(`/api/track` pour le navigateur, `trackServer()` pour les actions serveur). Aucune donnée personnelle : un identifiant
+de visite anonyme (`session_id`) et, une fois connecté, l'identifiant du compte.
+
+Étapes : `landing_view`, `cta_click`, `hero_start`, `signup_view`, `signup_done`, `quiz_start`, `quiz_step`, `quiz_done`,
+`agent_saved`, `paywall_view`, `paywall_click`, `billing_view`, `addon_checked`, `payment_started`, `payment_completed`,
+`exit_offer_shown`, `exit_offer_accepted`.
+
+Entonnoir des 30 derniers jours (éditeur SQL Supabase) :
+
+```sql
+select event,
+       count(distinct coalesce(user_id::text, session_id, business_id::text)) as personnes
+from funnel_events
+where created_at > now() - interval '30 days'
+  and event in ('landing_view','cta_click','signup_view','signup_done','quiz_start','quiz_done','agent_saved','paywall_view','billing_view','payment_started','payment_completed')
+group by event
+order by personnes desc;
+```
+
+Abandon question par question : `select meta->>'id' as question, count(*) from funnel_events where event = 'quiz_step' group by 1 order by 2 desc;`
