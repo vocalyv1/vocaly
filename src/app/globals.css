@@ -149,3 +149,10 @@ h1, h2 {
   background-size: 200% 100%; animation: skel 1.2s ease-in-out infinite; }
 @keyframes skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .skel, .page-loading { animation: none; } }
+
+/* Curseur de volume des sons */
+.vol-range { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(to right, var(--color-noir) var(--v), var(--color-ligne) var(--v)); }
+.vol-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--color-noir);
+  border: 3px solid var(--color-surface); box-shadow: 0 1px 4px rgb(0 0 0 / .25); }
+.vol-range::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--color-noir); border: 3px solid var(--color-surface); }

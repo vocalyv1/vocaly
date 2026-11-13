@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { play, setSoundEnabled, soundEnabled } from "./sound";
+import { getVolume, play, setVolume } from "./sound";
 
 const I = {
   test: <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Zm-7 9a7 7 0 0 0 14 0M12 19v3" />,
@@ -25,9 +25,9 @@ function Tip({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div className="group relative">
       {children}
-      <span className="pointer-events-none absolute left-full top-1/2 z-30 ml-3 -translate-x-1 -translate-y-1/2 whitespace-nowrap rounded-lg bg-surface px-2.5 py-1 text-xs text-noir opacity-0 shadow-lg transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+      {label && <span className="pointer-events-none absolute left-full top-1/2 z-30 ml-3 -translate-x-1 -translate-y-1/2 whitespace-nowrap rounded-lg bg-surface px-2.5 py-1 text-xs text-noir opacity-0 shadow-lg transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
         {label}
-      </span>
+      </span>}
     </div>
   );
 }
@@ -59,10 +59,8 @@ export function toggleTheme(e: React.MouseEvent, setDark: (d: boolean) => void) 
 // Rail d'outils flottant (raccourcis, thème, son, déconnexion).
 export function SideRail() {
   const [dark, setDark] = useState(false);
-  const [sound, setSound] = useState(true);
   useEffect(() => {
     setDark(document.documentElement.dataset.theme === "dark");
-    setSound(soundEnabled());
   }, []);
 
   return (
@@ -72,11 +70,7 @@ export function SideRail() {
       <Tip label="Derniers appels"><Link href="/app/appels" className={btn} onClick={() => play("tick")}><Icon d={I.calls} /></Link></Tip>
       <Tip label="Numéro de téléphone"><Link href="/app/telephone" className={btn} onClick={() => play("tick")}><Icon d={I.phone} /></Link></Tip>
       <span className="my-1 h-px w-6 bg-sur-brand/15" />
-      <Tip label={sound ? "Couper les sons" : "Activer les sons"}>
-        <button type="button" className={btn} aria-label={sound ? "Couper les sons" : "Activer les sons"} onClick={() => { const n = !sound; setSoundEnabled(n); setSound(n); if (n) play("toggle"); }}>
-          <Icon d={sound ? I.soundOn : I.soundOff} />
-        </button>
-      </Tip>
+      <VolumeControl />
       <Tip label={dark ? "Thème clair" : "Thème sombre"}>
         <button type="button" className={btn} aria-label={dark ? "Passer au thème clair" : "Passer au thème sombre"} onClick={(e) => toggleTheme(e, setDark)}>
           <Icon d={dark ? I.sun : I.moon} />
@@ -97,5 +91,45 @@ export function MobileThemeButton() {
     <button type="button" onClick={(e) => toggleTheme(e, setDark)} aria-label="Changer de thème" className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-gris md:hidden">
       <Icon d={dark ? I.sun : I.moon} />
     </button>
+  );
+}
+
+// Volume des effets sonores : un clic sur l'icône ouvre un curseur à côté du rail.
+function VolumeControl() {
+  const [open, setOpen] = useState(false);
+  const [vol, setVol] = useState(100);
+  useEffect(() => setVol(getVolume()), []);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest("[data-volume]")) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); };
+  }, [open]);
+
+  return (
+    <div className="relative" data-volume>
+      <Tip label={open ? "" : `Volume des sons : ${vol} %`}>
+        <button type="button" className={btn} aria-label="Régler le volume des sons" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          <Icon d={vol === 0 ? I.soundOff : I.soundOn} />
+        </button>
+      </Tip>
+      {open && (
+        <div className="rise absolute left-full top-1/2 z-30 ml-3 flex -translate-y-1/2 items-center gap-3 rounded-2xl bg-surface px-4 py-3 text-noir shadow-xl">
+          <button type="button" className="text-gris hover:text-noir" aria-label={vol === 0 ? "Remettre le son" : "Couper le son"}
+            onClick={() => { const v = vol === 0 ? 70 : 0; setVol(v); setVolume(v); if (v) play("toggle"); }}>
+            <Icon d={vol === 0 ? I.soundOff : I.soundOn} />
+          </button>
+          <input type="range" min={0} max={100} step={5} value={vol} aria-label="Volume des sons"
+            className="vol-range w-36"
+            style={{ ["--v" as string]: `${vol}%` }}
+            onChange={(e) => { const v = Number(e.target.value); setVol(v); setVolume(v); }}
+            onPointerUp={() => play("tick")}
+            onKeyUp={() => play("tick")} />
+          <span className="w-10 text-right text-xs tabular-nums text-gris">{vol} %</span>
+        </div>
+      )}
+    </div>
   );
 }

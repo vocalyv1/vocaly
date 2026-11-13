@@ -1,19 +1,25 @@
 "use client";
 
-// Sons d'interface synthétisés (Web Audio) : aucun fichier à charger. Désactivables, mémorisés par navigateur.
+// Sons d'interface synthétisés (Web Audio) : aucun fichier à charger. Volume réglable (0 à 100), mémorisé par navigateur.
 type Kind = "tick" | "toggle" | "success" | "error" | "whoosh";
 let ctx: AudioContext | null = null;
-const KEY = "vocaly-sound";
+const KEY = "vocaly-volume";
 
-export function soundEnabled() {
-  try { return localStorage.getItem(KEY) !== "off"; } catch { return true; }
+export function getVolume() {
+  try {
+    const v = localStorage.getItem(KEY);
+    if (v !== null) return Math.max(0, Math.min(100, Number(v) || 0));
+    if (localStorage.getItem("vocaly-sound") === "off") return 0; // ancien réglage « son coupé »
+  } catch {}
+  return 100;
 }
-export function setSoundEnabled(on: boolean) {
-  try { localStorage.setItem(KEY, on ? "on" : "off"); } catch {}
+export function setVolume(v: number) {
+  try { localStorage.setItem(KEY, String(Math.round(Math.max(0, Math.min(100, v))))); } catch {}
 }
 
 // Volume général des effets (les gains ci-dessous sont multipliés par cette valeur).
 const VOLUME = 4;
+let level = 1;
 
 function tone(freq: number, start: number, dur: number, gain: number, type: OscillatorType = "sine", to?: number) {
   const c = ctx!;
@@ -23,7 +29,7 @@ function tone(freq: number, start: number, dur: number, gain: number, type: Osci
   o.frequency.setValueAtTime(freq, c.currentTime + start);
   if (to) o.frequency.exponentialRampToValueAtTime(to, c.currentTime + start + dur);
   g.gain.setValueAtTime(0.0001, c.currentTime + start);
-  g.gain.exponentialRampToValueAtTime(Math.min(0.35, gain * VOLUME), c.currentTime + start + 0.008);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, Math.min(0.35, gain * VOLUME * level)), c.currentTime + start + 0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
   o.connect(g).connect(c.destination);
   o.start(c.currentTime + start);
@@ -31,7 +37,9 @@ function tone(freq: number, start: number, dur: number, gain: number, type: Osci
 }
 
 export function play(kind: Kind) {
-  if (typeof window === "undefined" || !soundEnabled()) return;
+  if (typeof window === "undefined") return;
+  level = getVolume() / 100;
+  if (level <= 0) return;
   try {
     ctx ??= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     if (ctx.state === "suspended") void ctx.resume();
