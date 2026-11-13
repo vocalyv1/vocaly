@@ -260,3 +260,12 @@ html:has(.lp) { scroll-behavior: smooth; }
 .lp .transcript.is-playing .msg { opacity: .45; transition: opacity .3s, transform .3s; }
 .lp .transcript.is-playing .msg.speaking { opacity: 1; transform: scale(1.015); }
 @media (max-width: 380px) { .lp .logo { height: 24px; } .lp .top-actions .icon-btn { width: 34px; height: 34px; } .lp .top .btn { padding: 0 10px; } }
+
+/* Étiquettes des offres, posées sur le bord haut de la carte */
+.lp .plans { padding-top: 14px; }
+.lp .plan { position: relative; }
+.lp .plan-tag { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); white-space: nowrap;
+  padding: 6px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; border: 1px solid var(--line); background: var(--pearl); color: var(--fg); }
+.lp .plan-tag-pro { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.lp .plan-tag-business { background: var(--bg); }
+@media (max-width: 860px) { .lp .plans { gap: 28px; } }

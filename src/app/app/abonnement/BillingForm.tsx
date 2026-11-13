@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, Card, Field, Notice } from "@/components/app/ui";
 import { checkPayment, startPayment, type PayState } from "./actions";
 
-type Plan = { id: string; name: string; minutes: number; features: string[]; monthly: number; yearly: number; price: { monthly: number; yearly: number } };
+type Plan = { id: string; name: string; tag: string; minutes: number; features: string[]; monthly: number; yearly: number; price: { monthly: number; yearly: number } };
 type Props = {
   plans: Plan[]; active: boolean; currentPlan: string | null; currentPeriod: "monthly" | "yearly" | null;
   early: { eligible: boolean; left: number | null; discount: number }; topup: { minutes: number; amount: number };
@@ -78,6 +78,7 @@ export function BillingForm(p: Props) {
           return (
             <button key={x.id} type="button" onClick={() => { setPlan(x.id); setKind("subscription"); }}
               className={`lift rounded-3xl border-2 bg-surface p-6 text-left transition-colors ${isSel ? "border-noir" : "border-transparent"}`}>
+              <span className={`mb-3 inline-block rounded-lg px-2.5 py-1 text-xs font-semibold ${x.id === "pro" ? "bg-brand text-sur-brand" : "bg-perle text-noir"}`}>{x.tag}</span>
               <div className="flex items-center justify-between">
                 <span className="text-lg font-semibold">{x.name}</span>
                 {p.active && p.currentPlan === x.id && <span className="rounded-full bg-perle px-2.5 py-1 text-xs">Votre offre</span>}
@@ -92,6 +93,7 @@ export function BillingForm(p: Props) {
           );
         })}
         <div className="flex flex-col rounded-3xl border-2 border-transparent bg-surface p-6">
+          <span className="mb-3 inline-block self-start rounded-lg border border-ligne px-2.5 py-1 text-xs font-semibold">Plusieurs lignes, gros volumes</span>
           <span className="text-lg font-semibold">Business+</span>
           <p className="mt-3 text-3xl font-medium">Sur devis</p>
           <p className="text-sm text-gris">Plusieurs agents, plusieurs numéros, gros volumes d&apos;appels.</p>

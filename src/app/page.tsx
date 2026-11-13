@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/plans";
+import { BUSINESS_PLUS_TAG, EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/plans";
 import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LandingThemeButton } from "@/components/LandingThemeButton";
@@ -225,6 +225,7 @@ export default function Home() {
       <div className="plans">
         {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => (
           <div className="plan" key={id}>
+            <span className={`plan-tag plan-tag-${id}`}>{PLANS[id].tag}</span>
             <span className="plan-name">{PLANS[id].name}</span>
             <p className="plan-price">{formatFcfa(PLANS[id].monthly)}<span> / mois</span></p>
             <p className="plan-sub">ou {formatFcfa(PLANS[id].yearly)} / an (−17 %, 2 mois offerts)</p>
@@ -234,6 +235,7 @@ export default function Home() {
           </div>
         ))}
         <div className="plan">
+          <span className="plan-tag plan-tag-business">{BUSINESS_PLUS_TAG}</span>
           <span className="plan-name">Business+</span>
           <p className="plan-price">Sur devis</p>
           <p className="plan-sub">Plusieurs agents, plusieurs numéros, gros volumes d’appels.</p>
@@ -241,7 +243,7 @@ export default function Home() {
           <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B" target="_blank" rel="noopener">Contactez-nous</a>
         </div>
       </div>
-      <p className="plan-note">Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois.</p>
+      <p className="plan-note">Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois. Nombre d’appels estimé pour une durée moyenne de 2 minutes.</p>
     </div>
   </section>
 

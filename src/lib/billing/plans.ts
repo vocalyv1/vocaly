@@ -7,9 +7,10 @@
 export type PlanId = "essentiel" | "pro";
 export type Period = "monthly" | "yearly";
 
-export const PLANS: Record<PlanId, { name: string; minutes: number; monthly: number; yearly: number; features: string[] }> = {
+export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number; monthly: number; yearly: number; features: string[] }> = {
   essentiel: {
     name: "Essentiel",
+    tag: "Environ 50 appels par mois",
     minutes: 100,
     monthly: 59_000,
     yearly: 590_000,
@@ -17,12 +18,16 @@ export const PLANS: Record<PlanId, { name: string; minutes: number; monthly: num
   },
   pro: {
     name: "Pro",
+    tag: "Environ 150 appels par mois",
     minutes: 300,
     monthly: 129_000,
     yearly: 1_290_000,
     features: ["300 minutes d'appels par mois", "1 agent, 1 numéro +242", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain", "Support prioritaire sur WhatsApp"],
   },
 };
+
+// Étiquettes calculées sur une durée moyenne de 2 minutes par appel.
+export const BUSINESS_PLUS_TAG = "Plusieurs lignes, gros volumes";
 
 // Recharge : 100 minutes supplémentaires, sans date d'expiration.
 export const TOPUP = { minutes: 100, amount: 49_000 };
