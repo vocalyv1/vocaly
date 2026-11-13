@@ -133,7 +133,7 @@ export function OtpVerify({ email, kind, next }: { email: string; kind: OtpKind;
           Pas reçu le code ?{" "}
           {wait > 0 ? <span>Renvoyer dans {wait} s</span> : <button type="button" className="font-semibold text-noir underline" onClick={resend}>Renvoyer</button>}
           {resent && <span className="mt-1 block">{resent}</span>}
-          <span className="mt-1 block text-xs">Pensez à regarder dans les courriers indésirables.</span>
+          <span className="mt-1 block text-xs">Vous avez reçu un lien plutôt qu&apos;un code ? Cliquez simplement dessus. Pensez aussi aux courriers indésirables.</span>
         </p>
       )}
     </div>
