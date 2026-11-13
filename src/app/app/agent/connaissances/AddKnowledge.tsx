@@ -12,8 +12,8 @@ const TABS = [
   { kind: "url", label: "Site web" },
 ] as const;
 
-export function AddKnowledge() {
-  const [kind, setKind] = useState<(typeof TABS)[number]["kind"]>("faq");
+export function AddKnowledge({ initial = "faq" }: { initial?: (typeof TABS)[number]["kind"] }) {
+  const [kind, setKind] = useState<(typeof TABS)[number]["kind"]>(initial);
   const [state, action, pending] = useActionState<KState, FormData>(addKnowledge, {});
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => { if (state.ok) form.current?.reset(); }, [state]);

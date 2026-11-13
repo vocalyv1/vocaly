@@ -21,7 +21,7 @@ export default function SaveOnboardingPage() {
     saveOnboarding(payload).then((res) => {
       if (res.ok) {
         try { localStorage.removeItem("vocaly-onboarding"); } catch {}
-        router.replace("/app/agent?bienvenue=1");
+        router.replace("/onboarding/connaissances");
       } else if (res.reason === "auth") {
         router.replace("/inscription?next=/onboarding/enregistrer");
       } else if (res.reason === "invalid") {

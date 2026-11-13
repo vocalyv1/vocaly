@@ -79,7 +79,8 @@ html:has(.lp) { scroll-behavior: smooth; }
 @media (max-width: 860px) { .lp header nav { display: none; } .lp .top-actions { margin-left: auto; } }
 @media (min-width: 861px) { .lp .top-actions { margin-left: 8px; } }
 .lp .top .btn .short { display: none; }
-@media (max-width: 420px) { .lp .top .btn .long { display: none; } .lp .top .btn .short { display: inline; } }
+.lp .top-actions .login .short { display: none; }
+@media (max-width: 420px) { .lp .top .btn .long, .lp .top-actions .login .long { display: none; } .lp .top .btn .short, .lp .top-actions .login .short { display: inline; } }
 
 
 .lp .hero { padding-block: clamp(48px, 7vw, 96px) clamp(56px, 8vw, 104px); }
@@ -237,3 +238,25 @@ html:has(.lp) { scroll-behavior: smooth; }
 .lp .plan-early { font-weight: 700; color: #16A34A; font-size: 15px; }
 .lp .plan-note { margin-top: 20px; color: var(--muted); font-size: 15px; }
 @media (max-width: 860px) { .lp .plans { grid-template-columns: minmax(0, 1fr); } }
+
+/* Lien de connexion dans l'en-tête */
+.lp .top-actions .login { font-size: 15px; font-weight: 600; color: var(--fg); text-decoration: none; padding: 10px 6px; white-space: nowrap; }
+.lp .top-actions .login:hover { text-decoration: underline; }
+.lp header.top a:first-child { flex-shrink: 0; }
+@media (max-width: 430px) {
+  .lp header.top .wrap { gap: 8px; }
+  .lp .top-actions { gap: 6px; }
+  .lp .top-actions .login { font-size: 14px; padding: 8px 2px; }
+  .lp .top-actions .icon-btn { width: 38px; height: 38px; }
+  .lp .top .btn { padding: 0 12px; font-size: 14px; }
+}
+
+/* Exemple d'appel écoutable */
+.lp .call-play { margin-top: 16px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg);
+  border-radius: 999px; padding: 8px 16px 8px 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .2s; }
+.lp .call-play:hover { background: var(--pearl); }
+.lp .call-play-icon { width: 30px; height: 30px; border-radius: 50%; background: var(--fg); color: var(--bg); display: grid; place-items: center; font-size: 11px; }
+.lp .call-play.on .call-play-icon { background: #16A34A; color: #fff; }
+.lp .transcript.is-playing .msg { opacity: .45; transition: opacity .3s, transform .3s; }
+.lp .transcript.is-playing .msg.speaking { opacity: 1; transform: scale(1.015); }
+@media (max-width: 380px) { .lp .logo { height: 24px; } .lp .top-actions .icon-btn { width: 34px; height: 34px; } .lp .top .btn { padding: 0 10px; } }

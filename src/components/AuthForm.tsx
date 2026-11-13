@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { FormState } from "@/app/(auth)/actions";
+import { OtpVerify } from "./OtpVerify";
 
 type Field = { name: string; label: string; type?: string; autoComplete?: string; placeholder?: string };
 
@@ -18,6 +19,7 @@ export function AuthForm({
   hidden?: Record<string, string>;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
+  if (state.otp) return <OtpVerify {...state.otp} />;
   if (state.info) {
     return <p className="rounded-xl bg-perle p-4 text-noir" role="status">{state.info}</p>;
   }

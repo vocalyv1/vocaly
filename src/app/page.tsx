@@ -3,6 +3,7 @@ import { EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/p
 import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LandingThemeButton } from "@/components/LandingThemeButton";
+import { CallDemo } from "@/components/CallDemo";
 import "./landing.css";
 
 // Site vitrine (page d'accueil). Règle Leo Grindarss : un titre qui dit le bénéfice,
@@ -28,6 +29,7 @@ export default function Home() {
     </nav>
     <div className="top-actions">
       <LandingThemeButton />
+      <Link className="login" href="/connexion"><span className="long">Se connecter</span><span className="short">Connexion</span></Link>
       <Link className="btn btn-primary" href="/onboarding"><span className="long">Créer mon agent</span><span className="short">Commencer</span></Link>
     </div>
   </div>
@@ -52,19 +54,14 @@ export default function Home() {
       <div>
         <article className="call" aria-label="Exemple d’appel traité par un agent Vocaly">
           <div className="call-head">
-            <div className="avatar" aria-hidden="true">D</div>
+            <div className="avatar" aria-hidden="true">V</div>
             <div className="who">
-              <div className="name">Daniel · Clinique Les Palmiers</div>
+              <div className="name">Voxa · Clinique Les Palmiers</div>
               <div className="meta">Appel entrant · 21:07 · +242 06 ••• •• 41</div>
             </div>
             <div className="live" aria-hidden="true"><i /><i /><i /><i /><i /></div>
           </div>
-          <div className="transcript">
-            <div className="msg agent"><small>Daniel</small>Bonsoir, Clinique Les Palmiers, Daniel à votre écoute. Je suis un assistant virtuel. Comment puis-je vous aider&nbsp;?</div>
-            <div className="msg client"><small>Client</small>Bonsoir, je voudrais voir le pédiatre demain matin, c’est possible&nbsp;?</div>
-            <div className="msg agent"><small>Daniel</small>Le Dr Mabiala consulte demain matin. Je note votre demande et la clinique vous rappelle pour confirmer l’heure. À quel nom&nbsp;?</div>
-            <div className="msg client"><small>Client</small>Grâce Okemba, au 06 512 34 56.</div>
-          </div>
+          <CallDemo />
           <div className="summary">
             <div className="summary-top">
               <span className="status">Appel traité</span>
@@ -74,7 +71,7 @@ export default function Home() {
             <div className="tags"><span className="tag">Rendez-vous</span><span className="tag">Nouveau patient</span></div>
           </div>
         </article>
-        <p className="example">Exemple d’appel. Daniel est notre agent de démonstration : vous donnez le prénom de votre choix au vôtre.</p>
+        <p className="example">Exemple d’appel. Voxa est notre agent de démonstration : vous donnez le prénom de votre choix au vôtre.</p>
       </div>
     </div>
   </section>
@@ -202,11 +199,11 @@ export default function Home() {
     <div className="wrap">
       <div>
         <span className="eyebrow">Démo · 1 min 10</span>
-        <h2 className="h2" style={{marginTop: "16px"}}>Voyez Daniel décrocher à la place d’un chef d’entreprise.</h2>
+        <h2 className="h2" style={{marginTop: "16px"}}>Voyez Voxa décrocher à la place d’un chef d’entreprise.</h2>
         <ul>
           <li><b>0:00</b><span>Un client appelle, personne ne décroche.</span></li>
           <li><b>0:20</b><span>Vous configurez votre agent en quelques questions.</span></li>
-          <li><b>0:30</b><span>Daniel répond avec vos horaires, vos prix, vos services.</span></li>
+          <li><b>0:30</b><span>Voxa répond avec vos horaires, vos prix, vos services.</span></li>
           <li><b>0:40</b><span>Le résumé de l’appel arrive : qui, pourquoi, quoi faire.</span></li>
         </ul>
         <div className="hero-ctas">

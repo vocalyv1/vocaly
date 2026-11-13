@@ -38,7 +38,7 @@ export default function OnboardingPage() {
       <h1 className="mb-2 text-2xl font-semibold text-noir">{q.title}</h1>
       {q.help && <p className="mb-4 text-gris">{q.help}</p>}
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className={`mt-4 ${q.kind !== "text" && q.options.length > 10 ? "grid grid-cols-2 gap-2" : "flex flex-col gap-3"}`}>
         {q.kind === "text" ? (
           <input
             autoFocus

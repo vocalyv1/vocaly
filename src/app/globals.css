@@ -96,3 +96,48 @@ h1, h2 {
   .page-in > * > *, .rise, .bar-grow, .pulse-dot { animation: none !important; }
   .lift:hover { transform: none; }
 }
+
+/* Saisie du code de vérification (inscription, mot de passe oublié) */
+.otp-stage { position: relative; height: 200px; margin: 18px 0 6px; }
+.otp-spin { position: absolute; inset: 0; }
+.otp-spin.spinning { animation: otp-spin 1.1s cubic-bezier(.6, 0, .3, 1) infinite; }
+@keyframes otp-spin { to { transform: rotate(360deg); } }
+.otp-box {
+  position: absolute; left: 50%; top: 50%; width: 42px; height: 50px; border-radius: 12px;
+  border: 1.5px solid var(--color-ligne); background: var(--color-surface); color: var(--color-noir);
+  text-align: center; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; outline: none;
+  transition: transform .55s cubic-bezier(.22, 1, .36, 1), border-color .25s, background .35s, color .35s, opacity .3s, box-shadow .25s;
+}
+.otp-box:focus { border-color: var(--color-noir); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-noir) 10%, transparent); }
+.otp-box.filled { border-color: color-mix(in srgb, var(--color-noir) 45%, var(--color-ligne)); animation: otp-pop .22s ease-out; }
+.otp-box:disabled { opacity: 1; -webkit-text-fill-color: currentColor; }
+@keyframes otp-pop { 50% { scale: 1.08; } }
+.otp-ring { position: absolute; left: 50%; top: 50%; width: 128px; height: 128px; margin: -64px 0 0 -64px; border-radius: 50%;
+  border: 1px dashed var(--color-ligne); opacity: 0; scale: .6; transition: opacity .4s, scale .5s cubic-bezier(.22, 1, .36, 1); }
+.otp-ring.on { opacity: 1; scale: 1; }
+.otp[data-stage="error"] .otp-box { border-color: #DC2626; color: #DC2626; animation: otp-shake .4s; }
+@keyframes otp-shake { 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+.otp[data-stage="valid"] .otp-box, .otp[data-stage="collapse"] .otp-box {
+  border-color: var(--color-traite); background: color-mix(in srgb, var(--color-traite) 14%, var(--color-surface)); color: var(--color-traite);
+}
+.otp[data-stage="valid"] .otp-ring { border-color: var(--color-traite); }
+.otp[data-stage="collapse"] .otp-box { opacity: .85; scale: .8; }
+.otp[data-stage="collapse"] .otp-ring, .otp[data-stage="done"] .otp-ring { opacity: 0; scale: .3; }
+.otp[data-stage="done"] .otp-box { opacity: 0; }
+.otp-done { position: absolute; left: 50%; top: 50%; }
+.otp-check { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 18px; display: grid; place-items: center;
+  color: var(--color-traite); border: 1.5px solid var(--color-traite); background: color-mix(in srgb, var(--color-traite) 12%, var(--color-surface));
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-traite) 8%, transparent); animation: otp-check .5s cubic-bezier(.22, 1.4, .36, 1) both; }
+.otp-check svg path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: otp-draw .4s .25s ease-out forwards; }
+@keyframes otp-check { from { scale: .3; opacity: 0; } }
+@keyframes otp-draw { to { stroke-dashoffset: 0; } }
+.otp-done i { position: absolute; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: var(--color-traite);
+  animation: otp-burst .9s ease-out forwards; }
+@keyframes otp-burst {
+  from { transform: rotate(var(--a)) translateX(10px); opacity: 1; }
+  to { transform: rotate(var(--a)) translateX(var(--d)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .otp-spin.spinning, .otp-box.filled, .otp-check, .otp-done i { animation: none; }
+  .otp-check svg path { stroke-dashoffset: 0; }
+}

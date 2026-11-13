@@ -8,8 +8,8 @@ export default function ForgotPage() {
   return (
     <>
       <h1 className="text-2xl font-bold text-noir">Mot de passe oublié</h1>
-      <p className="mt-1 mb-6 text-gris">Nous vous envoyons un lien pour en choisir un nouveau.</p>
-      <AuthForm action={requestReset} submit="Envoyer le lien" fields={[{ name: "email", label: "E-mail", type: "email", autoComplete: "email" }]} />
+      <p className="mt-1 mb-6 text-gris">Nous vous envoyons un code pour en choisir un nouveau.</p>
+      <AuthForm action={requestReset} submit="Recevoir le code" fields={[{ name: "email", label: "E-mail", type: "email", autoComplete: "email" }]} />
       <p className="mt-6 text-sm text-gris"><Link className="underline" href="/connexion">Retour à la connexion</Link></p>
     </>
   );

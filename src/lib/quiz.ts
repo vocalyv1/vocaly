@@ -22,11 +22,17 @@ export const SECTORS: Option[] = [
   { value: "autre", label: "Autre activité" },
 ];
 
+// Villes du Congo-Brazzaville (chefs-lieux de département et principales villes).
+export const CITIES: Option[] = [
+  "Brazzaville", "Pointe-Noire", "Dolisie", "Nkayi", "Ouesso", "Owando", "Oyo", "Impfondo", "Madingou", "Sibiti",
+  "Kinkala", "Djambala", "Ewo", "Mossendjo", "Gamboma", "Mossaka", "Makoua", "Kintélé", "Loutété", "Mouyondzi",
+].map((c) => ({ value: c, label: c }));
+
 export const QUESTIONS: Question[] = [
   { id: "businessName", kind: "text", title: "Comment s'appelle votre entreprise ?", placeholder: "Ex. Clinique Les Palmiers" },
   { id: "sector", kind: "single", title: "Quelle est votre activité ?", options: SECTORS },
   { id: "activity", kind: "text", title: "Décrivez votre activité en une phrase", placeholder: "Ex. Clinique privée avec 6 spécialistes à Brazzaville" },
-  { id: "city", kind: "text", title: "Dans quelle ville êtes-vous ?", placeholder: "Ex. Brazzaville" },
+  { id: "city", kind: "single", title: "Dans quelle ville êtes-vous ?", options: CITIES },
   {
     id: "callsPerDay", kind: "single", title: "Combien d'appels recevez-vous par jour ?",
     options: [

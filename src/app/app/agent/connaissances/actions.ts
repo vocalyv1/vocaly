@@ -21,6 +21,7 @@ const UrlIn = Base.extend({ title: z.string().trim().max(120).optional(), url: z
 async function afterChange() {
   const ws = await getWorkspace();
   revalidatePath("/app/agent/connaissances");
+  revalidatePath("/onboarding/connaissances");
   if (ws.agent && elevenLabsConfigured()) {
     const r = await syncDraft(ws.supabase, ws.business, ws.agent);
     if (!r.ok) return { ok: true, message: `Enregistré. La mise à jour de l'agent de test a échoué : ${r.error}` };
