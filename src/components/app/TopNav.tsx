@@ -59,7 +59,7 @@ export function TopNav({ badges = {} }: { badges?: Record<string, number> }) {
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || e.shiftKey || i.href === active) return;
               setPending({ href: i.href, from: pathname });
-              play("nav");
+              play("tick");
             }}
             className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] transition-colors duration-300 ${
               on ? "text-sur-brand" : "text-gris hover:text-noir"
