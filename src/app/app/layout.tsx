@@ -5,6 +5,10 @@ import { MobileThemeButton, SideRail } from "@/components/app/SideRail";
 import { SoundEffects } from "@/components/app/SoundEffects";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { getWorkspace } from "@/lib/workspace";
+import { AccountNotices, SetupBar } from "@/components/app/AccountBar";
+import { HelpButton } from "@/components/app/HelpButton";
+import { accountNotices } from "@/lib/billing/insights";
+import { isActive, type Subscription } from "@/lib/billing/subscription";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +30,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </main>
     );
   }
-  const { business, user, supabase } = await getWorkspace();
+  const { business, user, supabase, agent } = await getWorkspace();
   // Pastille sur « Appels » : appels réels des dernières 24 h.
   const { count } = await supabase
     .from("calls").select("id", { count: "exact", head: true })
     .eq("business_id", business.id).eq("channel", "phone")
     .gte("created_at", new Date(Date.now() - 864e5).toISOString());
+
+  // Abonnement et étapes de mise en service (tests, connaissances, offre, numéro, premier vrai appel).
+  const [{ data: subRow }, tests, knowledge, realCalls] = await Promise.all([
+    supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle(),
+    supabase.from("calls").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("channel", "web_test"),
+    agent ? supabase.from("knowledge_sources").select("id", { count: "exact", head: true }).eq("agent_id", agent.id) : Promise.resolve({ count: 0 }),
+    supabase.from("calls").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("channel", "phone"),
+  ]);
+  const sub = (subRow ?? null) as Subscription | null;
+  const steps = [
+    { done: (tests.count ?? 0) > 0, label: "Tester votre agent", href: "/app/agent?tester=1#tester" },
+    { done: (knowledge.count ?? 0) > 0, label: "Ajouter ses connaissances", href: "/app/agent/connaissances" },
+    { done: isActive(sub), label: "Choisir votre offre", href: "/app/abonnement" },
+    { done: agent?.phone_status === "connected", label: "Connecter votre numéro", href: "/app/telephone" },
+    { done: (realCalls.count ?? 0) > 0, label: "Recevoir le premier appel", href: "/app/appels" },
+  ];
 
   return (
     <div className="app-shell">
@@ -53,7 +73,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </Link>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 md:px-8 md:pl-24">{children}</main>
+      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 md:px-8 md:pl-24">
+        <AccountNotices notices={accountNotices(sub, business.timezone)} />
+        <SetupBar steps={steps} />
+        {children}
+      </main>
+      <HelpButton />
     </div>
   );
 }

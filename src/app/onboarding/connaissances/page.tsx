@@ -38,8 +38,8 @@ export default async function OnboardingKnowledgePage() {
       )}
 
       <div className="mt-10 flex justify-end">
-        <Link href="/app/agent?bienvenue=1" className="rounded-xl bg-brand px-6 py-3 font-medium text-sur-brand">
-          {sources.length > 0 ? "Terminer" : "Passer pour l\u2019instant"}
+        <Link href="/app/agent?bienvenue=1#tester" className="rounded-xl bg-brand px-6 py-3 font-medium text-sur-brand">
+          {sources.length > 0 ? "Tester mon agent" : "Passer et tester mon agent"}
         </Link>
       </div>
     </main>

@@ -12,7 +12,7 @@ type Props = {
   early: { eligible: boolean; left: number | null; discount: number }; topup: { minutes: number; amount: number };
   operators: { value: string; label: string }[]; disabled: boolean; pendingId: string | null;
   methods: { momo: boolean; card: boolean }; cancelled: boolean; cardReturn: boolean;
-  addon: { minutes: number; amount: number }; offer: { expiresAt: string; discount: number } | null;
+  addon: { minutes: number; amount: number }; initialKind?: "subscription" | "topup"; initialPeriod?: "monthly" | "yearly" | null; offer: { expiresAt: string; discount: number } | null;
 };
 
 type Exit = { kind: "early"; left: number | null } | { kind: "exit"; expiresAt: string; discount: number };
@@ -21,8 +21,8 @@ const fcfa = (n: number) => `${new Intl.NumberFormat("fr-FR").format(n).replace(
 
 export function BillingForm(p: Props) {
   const router = useRouter();
-  const [period, setPeriod] = useState<"monthly" | "yearly">(p.currentPeriod ?? "yearly");
-  const [kind, setKind] = useState<"subscription" | "topup">("subscription");
+  const [period, setPeriod] = useState<"monthly" | "yearly">(p.initialPeriod ?? p.currentPeriod ?? "yearly");
+  const [kind, setKind] = useState<"subscription" | "topup">(p.initialKind ?? "subscription");
   const [plan, setPlan] = useState<string>(p.currentPlan ?? "essentiel");
   const [method, setMethod] = useState<"momo" | "card">(!p.methods.momo && p.methods.card ? "card" : "momo");
   const [operator, setOperator] = useState(p.operators[0]?.value ?? "MTN_MOMO_COG");

@@ -9,9 +9,10 @@ import { ActivatePanel } from "./ActivatePanel";
 import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
 import { EARLY_BIRD, formatFcfa, planPrice } from "@/lib/billing/plans";
 
-export default async function AgentPage({ searchParams }: { searchParams: Promise<{ bienvenue?: string }> }) {
+export default async function AgentPage({ searchParams }: { searchParams: Promise<{ bienvenue?: string; tester?: string }> }) {
   const { agent, business, supabase } = await getWorkspace();
-  const { bienvenue } = await searchParams;
+  const { bienvenue, tester } = await searchParams;
+  const focusTest = Boolean(bienvenue || tester);
   if (!agent) return <Empty title="Aucun agent" text="Votre agent n'a pas encore été créé." href="/onboarding" cta="Créer mon agent" />;
 
   const raw = {
@@ -51,10 +52,14 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
   return (
     <div>
       <PageHeader title={`Mon agent : ${agent.name}`} subtitle={`L'assistant téléphonique de ${business.name}.`} />
-      {bienvenue && (
-        <div className="mb-6"><Notice tone="ok">Votre agent est enregistré. Relisez ses réglages, testez-le ci-dessous, puis publiez-le.</Notice></div>
+      {focusTest && (
+        <Card className="mb-6 scroll-mt-24 border-2 border-noir">
+          <h2 id="tester" className="text-2xl font-semibold">{bienvenue ? `${agent.name} est prêt : parlez-lui maintenant` : `Parlez à ${agent.name}`}</h2>
+          <p className="mb-4 mt-1 text-sm text-gris">Jouez le rôle d&apos;un client : demandez vos horaires, vos prix, un rendez-vous. Vous pourrez corriger ses réglages juste en dessous.</p>
+          <TestWidget agentId={agent.provider_test_agent_id} autoPrepare />
+        </Card>
       )}
-      <div className="mb-6 grid gap-4 md:grid-cols-2">
+      <div className={`mb-6 grid gap-4 ${focusTest ? "" : "md:grid-cols-2"}`}>
         <Card>
           <h2 className="text-lg font-medium">Publication</h2>
           <p className="mt-1 text-sm text-gris">
@@ -69,10 +74,12 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
             L&apos;agent publié répond aux appels une fois votre numéro connecté (<Link href="/app/telephone" className="underline">Téléphone</Link>).
           </p>
         </Card>
-        <Card className="scroll-mt-24">
-          <h2 id="tester" className="mb-1 text-lg font-medium">Tester le brouillon</h2>
-          <TestWidget agentId={agent.provider_test_agent_id} />
-        </Card>
+        {!focusTest && (
+          <Card className="scroll-mt-24">
+            <h2 id="tester" className="mb-1 text-lg font-medium">Tester le brouillon</h2>
+            <TestWidget agentId={agent.provider_test_agent_id} />
+          </Card>
+        )}
       </div>
       {paywall}
       <p className="mb-4 text-sm text-gris">

@@ -53,6 +53,13 @@ export async function processCall(callId: string, siteUrl: string) {
     }).eq("id", call.id);
     console.info("[report] tokens", usage.input_tokens, usage.output_tokens);
 
+    // Questions restées sans réponse : proposées au gérant pour compléter les connaissances de l'agent.
+    const questions = (report.unanswered_questions ?? []).map((q) => q.trim()).filter((q) => q.length >= 3).slice(0, 5);
+    if (questions.length) {
+      const { error } = await db.from("unanswered_questions").insert(questions.map((q) => ({ business_id: call.business_id, call_id: call.id, question: q.slice(0, 500) })));
+      if (error) await logError("report", "Questions sans réponse non enregistrées", { callId: call.id, error: error.message }, business.id);
+    }
+
     // E-mail : seulement pour les vrais appels, une seule fois.
     if (call.channel === "phone" && !call.notified_at && business.email && emailConfigured()) {
       try {

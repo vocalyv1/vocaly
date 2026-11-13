@@ -106,3 +106,29 @@ export async function updateKnowledge(id: string, title: string, content: string
   }
   return r;
 }
+
+// Question restée sans réponse pendant un appel : le gérant écrit la réponse, elle devient une question fréquente de l'agent.
+export async function answerQuestion(_: KState, form: FormData): Promise<KState> {
+  const { supabase, agent } = await getWorkspace();
+  if (!agent) return { ok: false, message: "Aucun agent." };
+  const id = z.uuid().safeParse(form.get("id"));
+  const answer = z.string().trim().min(2, "Écrivez la réponse.").max(3000).safeParse(form.get("answer"));
+  if (!id.success) return { ok: false, message: "Question introuvable." };
+  if (!answer.success) return { ok: false, message: answer.error.issues[0].message };
+  const { data: q } = await supabase.from("unanswered_questions").select("id, question, status").eq("id", id.data).maybeSingle();
+  if (!q || q.status !== "open") return { ok: false, message: "Question déjà traitée." };
+  const { data: src, error } = await supabase.from("knowledge_sources").insert({
+    agent_id: agent.id, kind: "faq", title: q.question.slice(0, 300), content: answer.data, category: "faq", status: "pending", size_bytes: answer.data.length,
+  }).select("id").single();
+  if (error || !src) return { ok: false, message: "Enregistrement impossible." };
+  await supabase.from("unanswered_questions").update({ status: "answered", knowledge_source_id: src.id, resolved_at: new Date().toISOString() }).eq("id", q.id);
+  revalidatePath("/app", "layout");
+  return afterChange();
+}
+
+export async function dismissQuestion(id: string) {
+  const { supabase } = await getWorkspace();
+  if (!z.uuid().safeParse(id).success) return;
+  await supabase.from("unanswered_questions").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id).eq("status", "open");
+  revalidatePath("/app", "layout");
+}

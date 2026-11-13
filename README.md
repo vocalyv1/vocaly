@@ -73,3 +73,12 @@ order by personnes desc;
 ```
 
 Abandon question par question : `select meta->>'id' as question, count(*) from funnel_events where event = 'quiz_step' group by 1 order by 2 desc;`
+
+## Tâche quotidienne (e-mails)
+
+`/api/cron/daily` est appelée chaque jour à 7 h UTC (8 h à Brazzaville) par Vercel Cron (`vercel.json`). Elle envoie :
+rappels de renouvellement (J-7, J-3, veille/jour même, lendemain de l'expiration), alertes de minutes (80 % et 100 %)
+et le récapitulatif du lundi. Chaque e-mail n'est envoyé qu'une fois (table `notifications_sent`, migration 0006).
+
+Variables : `CRON_SECRET` (chaîne aléatoire, Vercel l'envoie dans l'en-tête Authorization), `RESEND_API_KEY`, `RESEND_FROM`.
+Sans ces variables, la route refuse l'appel ou n'envoie rien. Les bandeaux de l'espace client fonctionnent sans elles.

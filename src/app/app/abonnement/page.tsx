@@ -4,6 +4,8 @@ import { pawapayConfigured, OPERATORS } from "@/lib/billing/pawapay";
 import { ADDON, EARLY_BIRD, PLANS, TOPUP, PERIOD_LABEL, exitOfferPrice, formatFcfa, isPlan, planPrice, type Period } from "@/lib/billing/plans";
 import { earlyBirdFor, isActive, validExitOffer, type Subscription } from "@/lib/billing/subscription";
 import { BillingForm } from "./BillingForm";
+import { upgradeHints } from "@/lib/billing/insights";
+import Link from "next/link";
 import { stripeConfigured } from "@/lib/billing/stripe";
 
 const STATUS: Record<string, string> = { pending: "En attente", completed: "Payé", failed: "Échoué" };
@@ -17,7 +19,7 @@ function formatDay(d: Date, tz: string) {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: tz }).format(d);
 }
 
-export default async function BillingPage({ searchParams }: { searchParams: Promise<{ paiement?: string; annule?: string }> }) {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ paiement?: string; annule?: string; recharge?: string; periode?: string }> }) {
   const sp = await searchParams;
   const { supabase, business, role } = await getWorkspace();
   const { data: subRow } = await supabase.from("subscriptions").select("*").eq("business_id", business.id).maybeSingle();
@@ -38,6 +40,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     exitYearly: exitOfferPrice(id),
   }));
   const offer = active ? null : await validExitOffer(supabase, business.id);
+  const hints = await upgradeHints(supabase, business.id, sub);
 
   const includedSec = (sub?.minutes_included ?? 0) * 60;
   const usedSec = sub?.seconds_used ?? 0;
@@ -84,6 +87,14 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         </Card>
       )}
 
+      {hints.map((h) => (
+        <Card key={h.title} className="mb-6 border-2 border-traite/40">
+          <p className="font-semibold">{h.title}</p>
+          <p className="mt-1 text-sm text-gris">{h.text}</p>
+          <Link href={h.href} className="mt-3 inline-block text-sm font-semibold underline">{h.cta}</Link>
+        </Card>
+      ))}
+
       {!configured && (
         <div className="mb-6">
           <Notice>
@@ -108,6 +119,8 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         cancelled={sp.annule === "1"}
         cardReturn={Boolean(sp.paiement)}
         addon={ADDON}
+        initialKind={sp.recharge === "1" && active ? "topup" : "subscription"}
+        initialPeriod={sp.periode === "annuel" ? "yearly" : sp.periode === "mensuel" ? "monthly" : null}
         offer={offer ? { expiresAt: offer.expires_at, discount: Number(offer.discount) } : null}
       />
 

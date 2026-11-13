@@ -9,7 +9,7 @@ import { trackServer } from "@/lib/funnel/server";
 export type Subscription = {
   business_id: string; plan: string; period: string; minutes_included: number; status: string;
   paid_until: string | null; current_period_start: string | null; usage_period_start: string | null;
-  seconds_used: number; extra_seconds: number; early_bird_until: string | null;
+  seconds_used: number; extra_seconds: number; early_bird_until: string | null; payment_provider?: string | null;
 };
 
 export function isActive(s: Pick<Subscription, "status" | "paid_until"> | null | undefined) {

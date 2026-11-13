@@ -20,6 +20,9 @@ export const ReportSchema = z.object({
   ),
   next_action: z.string().describe("Action concrète que l'équipe doit faire maintenant (ex. « Rappeler M. Okemba avant 17 h pour le devis »), ou « Aucune »."),
   caller_sentiment: z.enum(["satisfait", "neutre", "mécontent"]),
+  unanswered_questions: z.array(z.string()).describe(
+    "Questions précises de l'appelant auxquelles l'agent n'a pas su répondre (il a dit ne pas savoir, a proposé de prendre un message faute d'information, ou a éludé). Reformulées en une question courte et claire. Liste vide si l'agent a répondu à tout.",
+  ),
 });
 export type CallReport = z.infer<typeof ReportSchema>;
 

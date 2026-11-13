@@ -1,14 +1,22 @@
 "use client";
 
-import { createElement, useEffect, useState, useTransition } from "react";
+import { createElement, useEffect, useRef, useState, useTransition } from "react";
 import { Button, Notice } from "@/components/app/ui";
 import { prepareTestAgent } from "./actions";
 
 // Test dans le navigateur : on parle à l'agent de test, qui reflète le brouillon (pas l'agent en ligne).
-export function TestWidget({ agentId }: { agentId: string | null }) {
+export function TestWidget({ agentId, autoPrepare = false }: { agentId: string | null; autoPrepare?: boolean }) {
   const [ready, setReady] = useState(false);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  // Juste après la création de l'agent : on prépare le test sans attendre un clic.
+  const asked = useRef(false);
+  useEffect(() => {
+    if (agentId || !autoPrepare || asked.current) return;
+    asked.current = true;
+    start(async () => { const r = await prepareTestAgent(); if (!r.ok) setError(r.message); });
+  }, [agentId, autoPrepare]);
 
   useEffect(() => {
     if (!agentId) return;

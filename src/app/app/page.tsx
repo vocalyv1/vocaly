@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getWorkspace } from "@/lib/workspace";
-import { isActive } from "@/lib/billing/subscription";
 import { Card, LivePill, Segmented, StatusBadge, formatDate, formatDuration } from "@/components/app/ui";
 import { BarChart, CountUp, Gauge, MiniBars, Sparkline } from "@/components/app/viz";
 
@@ -59,15 +58,16 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   }
   const last7 = days.slice(-7);
 
-  const { data: sub } = await supabase.from("subscriptions").select("status, paid_until").eq("business_id", business.id).maybeSingle();
-  const steps = [
-    { done: Boolean(agent), label: "Créer votre agent", href: "/app/agent" },
-    { done: Boolean(agent?.provider_test_agent_id), label: "Le tester dans le navigateur", href: "/app/agent" },
-    { done: (agent?.published_version ?? 0) > 0, label: "Publier une première version", href: "/app/agent" },
-    { done: isActive(sub), label: "Choisir votre offre", href: "/app/abonnement" },
-    { done: agent?.phone_status === "connected", label: "Connecter votre numéro", href: "/app/telephone" },
-  ];
-  const doneSteps = steps.filter((s) => s.done).length;
+  // Ce que l'agent a fait pour l'entreprise : uniquement des chiffres tirés des appels réels.
+  const hourOf = (d: Date) => Number(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hour12: false }).format(d));
+  const weekdayOf = (d: Date) => new Intl.DateTimeFormat("en-GB", { timeZone: tz, weekday: "short" }).format(d);
+  const offHours = calls.filter((c) => {
+    const d = new Date(c.started_at ?? c.created_at);
+    const h = hourOf(d);
+    return h >= 18 || h < 8 || weekdayOf(d) === "Sun";
+  }).length;
+  const talkMin = Math.round(durations.reduce((a, b) => a + b, 0) / 60);
+  const agentName = agent?.name ?? "Votre agent";
   const live = (agent?.published_version ?? 0) > 0 && agent?.phone_status === "connected";
 
   return (
@@ -86,30 +86,19 @@ export default async function Overview({ searchParams }: { searchParams: Promise
         <p className="text-xs text-gris">Appels réels uniquement, les tests ne sont pas comptés.</p>
       </div>
 
-      {doneSteps < steps.length && (
-        <Card className="mb-5">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-11 w-11 items-center justify-center">
-                <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" className="stroke-perle" strokeWidth="3" /><circle cx="18" cy="18" r="15" fill="none" className="stroke-noir" strokeWidth="3" strokeLinecap="round" strokeDasharray={94.2} strokeDashoffset={94.2 * (1 - doneSteps / steps.length)} style={{ transition: "stroke-dashoffset 1s" }} /></svg>
-                <span className="text-[11px] font-medium">{doneSteps}/{steps.length}</span>
-              </span>
-              <p className="font-medium">Pour démarrer</p>
-            </div>
-            <ol className="flex flex-wrap gap-2">
-              {steps.map((s, i) => (
-                <li key={i}>
-                  {s.done ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-perle px-3 py-1.5 text-xs text-gris line-through">✓ {s.label}</span>
-                  ) : (
-                    <Link href={s.href} className="lift inline-flex items-center gap-1.5 rounded-full border border-ligne px-3 py-1.5 text-xs font-medium">{i + 1}. {s.label} →</Link>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </Card>
-      )}
+      <div className="rise mb-5 rounded-3xl bg-surface p-6">
+        {calls.length > 0 ? (
+          <p className="text-lg leading-relaxed md:text-xl">
+            Sur les {DAYS} derniers jours, <b>{agentName}</b> a décroché <b>{calls.length} appel{calls.length > 1 ? "s" : ""}</b>
+            {offHours > 0 && <>, dont <b className="text-traite">{offHours} le soir, la nuit ou le dimanche</b></>}
+            {rdv > 0 && <>, noté <b>{rdv} demande{rdv > 1 ? "s" : ""} de rendez-vous</b></>}
+            {leads > 0 && <> et repéré <b>{leads} prospect{leads > 1 ? "s" : ""}</b></>}.
+            {talkMin > 0 && <> Cela représente <b>{talkMin} minute{talkMin > 1 ? "s" : ""} au téléphone</b> que votre équipe n&apos;a pas eu à passer.</>}
+          </p>
+        ) : (
+          <p className="text-gris">Dès les premiers appels reçus sur votre numéro, vous verrez ici ce que {agentName} a fait pour vous : appels décrochés, appels du soir et du dimanche, rendez-vous notés et prospects repérés. Les appels de test ne sont pas comptés.</p>
+        )}
+      </div>
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="lift rise col-span-2 rounded-3xl bg-brand p-5 text-sur-brand sm:col-span-1">
