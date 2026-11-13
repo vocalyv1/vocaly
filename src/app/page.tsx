@@ -6,6 +6,7 @@ import { LandingThemeButton } from "@/components/LandingThemeButton";
 import { CallDemo } from "@/components/CallDemo";
 import { HeroStart } from "@/components/HeroStart";
 import { LandingTracker } from "@/components/LandingTracker";
+import { LandingSounds } from "@/components/LandingSounds";
 import "./landing.css";
 
 // Site vitrine (page d'accueil). Règle Leo Grindarss : un titre qui dit le bénéfice,
@@ -20,6 +21,7 @@ export default function Home() {
   return (
     <div className="lp" id="top">
 <LandingTracker />
+<LandingSounds />
 <header className="top">
   <div className="wrap">
     <a href="#top" aria-label="Vocaly, accueil"><Logo className="logo" /></a>
