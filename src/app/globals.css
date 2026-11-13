@@ -58,10 +58,10 @@ h1, h2 {
 
 /* Entrée de page : fondu + léger flou + glissement. */
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(10px); filter: blur(6px); }
+  from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
   to { opacity: 1; transform: none; filter: none; }
 }
-.page-in > * > * { animation: page-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.page-in > * > * { animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .page-in > * > *:nth-child(2) { animation-delay: 0.05s; }
 .page-in > * > *:nth-child(3) { animation-delay: 0.1s; }
 .page-in > * > *:nth-child(4) { animation-delay: 0.15s; }
@@ -141,3 +141,11 @@ h1, h2 {
   .otp-spin.spinning, .otp-box.filled, .otp-check, .otp-done i { animation: none; }
   .otp-check svg path { stroke-dashoffset: 0; }
 }
+
+/* Chargement entre deux sections : apparaît en fondu (après 120 ms, pour ne pas clignoter si la page est rapide). */
+.page-loading { animation: loading-in .25s ease-out .12s both; }
+@keyframes loading-in { from { opacity: 0; } to { opacity: 1; } }
+.skel { border-radius: 14px; background: linear-gradient(90deg, var(--color-perle) 0%, color-mix(in srgb, var(--color-perle) 40%, var(--color-surface)) 50%, var(--color-perle) 100%);
+  background-size: 200% 100%; animation: skel 1.2s ease-in-out infinite; }
+@keyframes skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel, .page-loading { animation: none; } }

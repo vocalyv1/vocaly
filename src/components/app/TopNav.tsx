@@ -24,7 +24,11 @@ export function activeHref(pathname: string) {
 // Navigation en pastilles : la pastille noire glisse vers l'onglet actif.
 export function TopNav({ badges = {} }: { badges?: Record<string, number> }) {
   const pathname = usePathname();
-  const active = activeHref(pathname);
+  const current = activeHref(pathname);
+  // Au clic, la pastille part tout de suite vers l'onglet choisi (en même temps que le son),
+  // sans attendre que la nouvelle page soit chargée.
+  const [pending, setPending] = useState<{ href: string; from: string } | null>(null);
+  const active = pending && pending.from === pathname ? pending.href : current;
   const wrap = useRef<HTMLDivElement>(null);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
 
@@ -41,7 +45,7 @@ export function TopNav({ badges = {} }: { badges?: Record<string, number> }) {
       {pill && (
         <span
           aria-hidden
-          className="absolute top-1 bottom-1 rounded-full bg-brand transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="absolute top-1 bottom-1 rounded-full bg-brand transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
           style={{ left: pill.left, width: pill.width }}
         />
       )}
@@ -52,7 +56,11 @@ export function TopNav({ badges = {} }: { badges?: Record<string, number> }) {
             key={i.href}
             href={i.href}
             data-href={i.href}
-            onClick={() => play("tick")}
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || i.href === active) return;
+              setPending({ href: i.href, from: pathname });
+              play("nav");
+            }}
             className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] transition-colors duration-300 ${
               on ? "text-sur-brand" : "text-gris hover:text-noir"
             }`}
