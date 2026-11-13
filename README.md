@@ -17,6 +17,10 @@ Aucune clé ne doit être écrite dans le code ni envoyée dans une conversation
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys | Rapport structuré de chaque appel |
 | `RESEND_API_KEY` | resend.com → API Keys | Envoi du résumé par e-mail |
 | `RESEND_FROM` | Une adresse d'un domaine vérifié dans Resend, ex. `Vocaly <appels@vocaly.cg>` | Expéditeur des résumés |
+| `PAWAPAY_API_TOKEN` | Tableau de bord PawaPay → API | Paiement Mobile Money (MTN, Airtel) |
+| `PAWAPAY_ENV` | `sandbox` ou `production` | Choix de l'API PawaPay |
+| `STRIPE_SECRET_KEY` | Stripe → Développeurs → Clés API (`sk_test_…` puis `sk_live_…`) | Paiement par carte (Stripe Checkout) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe → Développeurs → Webhooks → secret de signature (`whsec_…`) | Vérifier que les confirmations viennent de Stripe |
 
 Sans les variables Supabase, le site vitrine et le quiz fonctionnent ; l'espace client affiche « en cours d'activation ». Sans ElevenLabs, les réglages s'enregistrent mais le test vocal et la publication sont désactivés, avec un message clair.
 
@@ -25,10 +29,11 @@ Sans les variables Supabase, le site vitrine et le quiz fonctionnent ; l'espace 
 Production : https://vocaly-theta.vercel.app (Supabase : projet `vrqwwohqdpxtjxlyagcc`).
 
 
-1. **Supabase** : créer le projet, puis exécuter dans l'éditeur SQL, dans l'ordre, `supabase/migrations/0001_init.sql` puis `0002_mvp.sql`.
+1. **Supabase** : créer le projet, puis exécuter dans l'éditeur SQL, dans l'ordre, les fichiers `supabase/migrations/0001_init.sql` à `0004_stripe.sql`.
    Dans Authentication → URL Configuration : Site URL = l'adresse du site, Redirect URLs = `https://<site>/auth/callback`.
 2. **ElevenLabs** : dans les réglages des agents, déclarer le webhook post-appel `https://<site>/api/webhooks/elevenlabs` (événement « transcription »), et copier son secret dans `ELEVENLABS_WEBHOOK_SECRET`.
-3. **Téléphonie** : le numéro +242 (SIP) est rattaché à l'agent publié (`provider_agent_id`) dans ElevenLabs → Phone Numbers. Le statut « Connecté » est posé à la main (clé service) uniquement après confirmation de l'opérateur et un appel d'essai réussi.
+3. **Paiements** : webhook Stripe `https://<site>/api/webhooks/stripe` (événements `checkout.session.completed`, `.async_payment_succeeded`, `.async_payment_failed`, `.expired`) ; callback PawaPay `https://<site>/api/webhooks/pawapay`. Les abonnements ne s'activent qu'après relecture du paiement chez le prestataire.
+4. **Téléphonie** : le numéro +242 (SIP) est rattaché à l'agent publié (`provider_agent_id`) dans ElevenLabs → Phone Numbers. Le statut « Connecté » est posé à la main (clé service) uniquement après confirmation de l'opérateur et un appel d'essai réussi.
 
 ## Architecture
 
