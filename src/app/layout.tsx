@@ -3,9 +3,14 @@ import "./globals.css";
 import { BRAND } from "@/lib/brand";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://vocaly-theta.vercel.app").replace(/\/$/, "");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: `${BRAND.name} — agent téléphonique IA`,
   description: BRAND.tagline,
+  openGraph: { type: "website", locale: "fr_FR", siteName: BRAND.name, url: "/" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

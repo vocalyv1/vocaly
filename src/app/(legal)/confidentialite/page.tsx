@@ -17,7 +17,7 @@ export default function Page() {
       <p>Pour les appels, l&apos;entreprise cliente de Vocaly est responsable du traitement ; Vocaly agit comme sous-traitant. L&apos;agent annonce qu&apos;il est un assistant virtuel. [Préciser l&apos;information des appelants sur l&apos;enregistrement.]</p>
       <h2>Sous-traitants techniques</h2>
       <ul>
-        <li>ElevenLabs (voix et conversation), Anthropic (analyse et résumé des appels), Supabase (base de données), Vercel (hébergement), Resend (e-mails).</li>
+        <li>ElevenLabs (voix et conversation), Anthropic (analyse et résumé des appels), Supabase (base de données), Vercel (hébergement), Resend (e-mails), PawaPay et Stripe (paiements).</li>
         <li>Ces prestataires sont situés hors du Congo, principalement aux États-Unis et en Europe. [Encadrement des transferts à valider.]</li>
       </ul>
       <h2>Durée de conservation</h2>

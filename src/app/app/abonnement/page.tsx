@@ -125,6 +125,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       />
 
 
+      <p className="mt-4 text-center text-sm text-gris">
+        Satisfait ou remboursé 14 jours : si Vocaly ne vous convient pas, écrivez-nous sur{" "}
+        <a className="underline" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20utiliser%20la%20garantie%2014%20jours" target="_blank" rel="noopener">WhatsApp</a>{" "}
+        dans les 14 jours qui suivent votre premier paiement d&apos;abonnement, nous le remboursons en totalité (<a className="underline" href="/cgu">conditions</a>).
+      </p>
+
       {payments && payments.length > 0 && (
         <Card className="mt-6">
           <h2 className="mb-3 text-lg font-medium">Historique des paiements</h2>

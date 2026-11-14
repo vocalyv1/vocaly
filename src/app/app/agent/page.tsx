@@ -9,6 +9,14 @@ import { ActivatePanel } from "./ActivatePanel";
 import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
 import { EARLY_BIRD, formatFcfa, planPrice } from "@/lib/billing/plans";
 
+// Réponse du quiz « Quand ratez-vous le plus d'appels ? », reprise pour personnaliser l'activation.
+const MISSED: Record<string, string> = { busy: "quand vous êtes occupé avec un client", night: "le soir et la nuit", weekend: "le week-end", rush: "aux heures de pointe" };
+function missedWhenText(v: string[] | undefined) {
+  const parts = (v ?? []).map((k) => MISSED[k]).filter(Boolean);
+  if (!parts.length) return null;
+  return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} et ${parts[parts.length - 1]}`;
+}
+
 export default async function AgentPage({ searchParams }: { searchParams: Promise<{ bienvenue?: string; tester?: string }> }) {
   const { agent, business, supabase } = await getWorkspace();
   const { bienvenue, tester } = await searchParams;
@@ -42,7 +50,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
       earlyBirdFor(sub),
     ]);
     paywall = (
-      <ActivatePanel agentName={agent.name} testCalls={count ?? 0}
+      <ActivatePanel agentName={agent.name} testCalls={count ?? 0} missedWhen={missedWhenText((business as { quiz_answers?: { missedWhen?: string[] } }).quiz_answers?.missedWhen)}
         fromPrice={formatFcfa(Math.round(planPrice("essentiel", "yearly", early.eligible) / 12))}
         early={early.eligible ? { left: early.left, discount: EARLY_BIRD.discount } : null} />
     );

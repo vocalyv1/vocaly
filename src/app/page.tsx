@@ -7,6 +7,9 @@ import { CallDemo } from "@/components/CallDemo";
 import { HeroStart } from "@/components/HeroStart";
 import { LandingTracker } from "@/components/LandingTracker";
 import { LandingSounds } from "@/components/LandingSounds";
+import { LossCalculator } from "@/components/LossCalculator";
+import { LandingFloat } from "@/components/LandingFloat";
+import { earlyBirdFor } from "@/lib/billing/subscription";
 import "./landing.css";
 
 // Site vitrine (page d'accueil). Règle Leo Grindarss : un titre qui dit le bénéfice,
@@ -15,19 +18,40 @@ export const metadata: Metadata = {
   title: "Vocaly — votre agent téléphonique IA",
   description:
     "Un agent téléphonique IA qui décroche à votre place, 24 h/24, en français. Il répond avec vos prix et vos horaires, note les demandes de rendez-vous et vous envoie le résumé de chaque appel.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Vocaly — plus aucun appel client perdu",
+    description: "Un agent téléphonique IA qui décroche à votre place, 24 h/24, en français. Paiement Mobile Money ou carte. Satisfait ou remboursé 14 jours.",
+    url: "/",
+  },
 };
 
-export default function Home() {
+// Places avant-première relues toutes les 5 minutes (vraie valeur en base, jamais inventée).
+export const revalidate = 300;
+
+async function seatsLeft() {
+  try {
+    return (await earlyBirdFor(null)).left;
+  } catch {
+    return null;
+  }
+}
+
+const SHIELD = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>;
+
+export default async function Home() {
+  const left = await seatsLeft();
+  const seatsText = left == null ? "places limitées" : left > 0 ? `${left} place${left > 1 ? "s" : ""} sur ${EARLY_BIRD.slots} restante${left > 1 ? "s" : ""}` : "complète";
   return (
     <div className="lp" id="top">
 <LandingTracker />
 <LandingSounds />
+<LandingFloat />
 <header className="top">
   <div className="wrap">
     <a href="#top" aria-label="Vocaly, accueil"><Logo className="logo" /></a>
     <nav aria-label="Navigation principale">
       <a href="#comment">Comment ça marche</a>
-      <a href="#fonctions">Ce qu’il fait</a>
       <a href="#demo">Démo</a>
       <a href="#tarifs">Tarifs</a>
       <a href="#faq">Questions</a>
@@ -45,11 +69,11 @@ export default function Home() {
   <section className="hero">
     <div className="wrap">
       <div>
-        <span className="badge"><span className="dot"></span>Avant-première ouverte · places limitées</span>
+        <span className="badge"><span className="dot"></span>{left === 0 ? "Avant-première complète" : <>Avant-première · <span className="seats-left">{seatsText}</span></>}</span>
         <h1>Plus aucun appel client perdu. <span className="soft">Même à 21 h.</span></h1>
         <p className="lead">Vocaly vous donne un agent téléphonique IA qui décroche à votre place, 24 h/24, en français. Il répond avec vos prix et vos horaires, note les demandes de rendez-vous et vous envoie le résumé de chaque appel.</p>
         <HeroStart />
-        <p className="hero-note"><span>Prêt en 5 minutes</span><span>Test gratuit dans le navigateur</span><span>Sans site web</span><a href="#demo">Voir la démo (1 min)</a></p>
+        <p className="hero-note"><span>Prêt en 5 minutes</span><span>Test gratuit dans le navigateur</span><span>Satisfait ou remboursé 14 jours</span><a href="#demo">Voir la démo (1 min)</a></p>
       </div>
 
       {/* Le produit au centre : un appel réel, puis le résumé */}
@@ -102,6 +126,18 @@ export default function Home() {
           <p>Une ligne occupée, c’est un appel perdu. Votre agent répond à plusieurs appels à la fois.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  {/* CALCULATEUR */}
+  <section id="calcul">
+    <div className="wrap">
+      <div className="section-head">
+        <span className="eyebrow">Faites le calcul</span>
+        <h2 className="h2">Combien vous coûtent vos appels manqués ?</h2>
+        <p className="lead">Entrez vos propres chiffres. Rien n’est enregistré.</p>
+      </div>
+      <LossCalculator planMonthly={PLANS.essentiel.monthly} />
     </div>
   </section>
 
@@ -221,8 +257,9 @@ export default function Home() {
     <div className="wrap">
       <div className="section-head">
         <span className="eyebrow">Tarifs</span>
-        <h2 className="h2">Moins cher qu’une standardiste, sans engagement.</h2>
-        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises.</p>
+        <h2 className="h2">Un agent qui décroche 24&nbsp;h/24. Sans engagement, satisfait ou remboursé.</h2>
+        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises{left != null && left > 0 ? ` (${seatsText})` : left === 0 ? " (complète)" : ""}.</p>
+        <span className="guarantee">{SHIELD}Satisfait ou remboursé 14 jours</span>
       </div>
       <div className="plans">
         {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => (
@@ -245,7 +282,7 @@ export default function Home() {
           <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B" target="_blank" rel="noopener">Contactez-nous</a>
         </div>
       </div>
-      <p className="plan-note">Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois. Nombre d’appels estimé pour une durée moyenne de 2 minutes.</p>
+      <p className="plan-note">Satisfait ou remboursé : si Vocaly ne vous convient pas, nous remboursons votre premier paiement d’abonnement sur simple message WhatsApp dans les 14 jours (<a href="/cgu">conditions</a>). Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois. Nombre d’appels estimé pour une durée moyenne de 2 minutes.</p>
     </div>
   </section>
 
@@ -265,6 +302,7 @@ export default function Home() {
             <li>Paiement par Mobile Money (MTN, Airtel) ou carte bancaire</li>
             <li>Vos remarques changent directement le produit</li>
           </ul>
+          {left != null && <p className="seats-left" style={{marginBottom: "14px"}}>{left > 0 ? `Il reste ${seatsText.replace(" restante", "").replace(" restantes", "")}.` : "Toutes les places avant-première sont prises."}</p>}
           <Link className="btn btn-primary" href="/onboarding">Réserver ma place</Link>
           <p className="seats">Une question ? WhatsApp au <a className="phone" href="https://wa.me/242057949393" target="_blank" rel="noopener">+242 05 794 93 93</a></p>
         </div>
@@ -298,7 +336,23 @@ export default function Home() {
         </details>
         <details>
           <summary>Combien ça coûte ?</summary>
-          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. L’offre Essentiel coûte {formatFcfa(PLANS.essentiel.monthly)} par mois et l’offre Pro {formatFcfa(PLANS.pro.monthly)}, avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money, Airtel Money ou carte bancaire.</p>
+          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. En annuel, l’offre Essentiel revient à {formatFcfa(Math.round(PLANS.essentiel.yearly / 12))} par mois et l’offre Pro à {formatFcfa(Math.round(PLANS.pro.yearly / 12))} (au mois : {formatFcfa(PLANS.essentiel.monthly)} et {formatFcfa(PLANS.pro.monthly)}), avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money, Airtel Money ou carte bancaire.</p>
+        </details>
+        <details>
+          <summary>Et si ça ne me convient pas ?</summary>
+          <p>Vous êtes remboursé. Écrivez-nous sur WhatsApp dans les 14 jours qui suivent votre premier paiement d’abonnement : nous vous remboursons ce paiement en totalité, sans avoir à vous justifier.</p>
+        </details>
+        <details>
+          <summary>Suis-je engagé ? Comment arrêter ?</summary>
+          <p>Aucun engagement. Les offres sont prépayées et ne se renouvellent pas toutes seules : pour arrêter, il suffit de ne pas renouveler. Vous recevez un rappel avant la fin de chaque période.</p>
+        </details>
+        <details>
+          <summary>Quelles langues parle l’agent ?</summary>
+          <p>Le français uniquement, pour le moment. Si un client parle une autre langue, l’agent prend son nom et son numéro pour que vous le rappeliez.</p>
+        </details>
+        <details>
+          <summary>Que deviennent mes données et celles de mes clients ?</summary>
+          <p>Elles servent uniquement à faire fonctionner votre agent et à vous envoyer vos résumés d’appels. Elles ne sont ni vendues ni utilisées pour de la publicité. Le détail est dans notre <a href="/confidentialite">politique de confidentialité</a>.</p>
         </details>
         <details>
           <summary>Puis-je reprendre la main sur un appel ?</summary>
