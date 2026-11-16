@@ -33,7 +33,7 @@ Production : https://vocaly-theta.vercel.app (Supabase : projet `vrqwwohqdpxtjxl
    Dans Authentication → URL Configuration : Site URL = l'adresse du site, Redirect URLs = `https://<site>/auth/callback`.
 2. **ElevenLabs** : dans les réglages des agents, déclarer le webhook post-appel `https://<site>/api/webhooks/elevenlabs` (événement « transcription »), et copier son secret dans `ELEVENLABS_WEBHOOK_SECRET`.
 3. **Paiements** : webhook Stripe `https://<site>/api/webhooks/stripe` (événements `checkout.session.completed`, `.async_payment_succeeded`, `.async_payment_failed`, `.expired`) ; callback PawaPay `https://<site>/api/webhooks/pawapay`. Les abonnements ne s'activent qu'après relecture du paiement chez le prestataire.
-4. **Téléphonie** : le numéro +242 (SIP) est rattaché à l'agent publié (`provider_agent_id`) dans ElevenLabs → Phone Numbers. Le statut « Connecté » est posé à la main (clé service) uniquement après confirmation de l'opérateur et un appel d'essai réussi.
+4. **Téléphonie** : un numéro Airtel unique reçoit les appels renvoyés (`**21*`) par toutes les entreprises ; le routeur SIP (`infra/sip-router`, voir son README) lit le numéro d'origine et transmet l'appel à ElevenLabs. La page Téléphone relie le numéro de l'entreprise à son agent (`phone_routes`, migration `0007`). Le statut « Connecté » n'est posé qu'au premier appel réel reçu par l'agent.
 
 ## Architecture
 

@@ -16,7 +16,7 @@ export function ActivatePanel(p: { agentName: string; testCalls: number; missedW
             {p.missedWhen ? `Vous ratez des appels ${p.missedWhen} : ${p.agentName} décroche à votre place` : `Mettez ${p.agentName} au travail sur votre numéro`}
           </h2>
           <p className="mt-2 text-sm opacity-80">
-            Choisissez votre offre : nous préparons ensuite votre numéro +242 et {p.agentName} répond à vos clients, jour et nuit.
+            Choisissez votre offre : vous reliez ensuite votre numéro actuel et {p.agentName} répond à vos clients, jour et nuit.
             Dès {p.fromPrice} par mois en annuel.
             {" Satisfait ou remboursé 14 jours."}
             {p.early && ` Avant-première : −${p.early.discount * 100} % la première année${p.early.left != null ? `, ${p.early.left} place${p.early.left > 1 ? "s" : ""} restante${p.early.left > 1 ? "s" : ""}` : ""}.`}

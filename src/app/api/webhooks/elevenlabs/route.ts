@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   const db = createAdminClient();
   const { data: agent } = await db
     .from("agents")
-    .select("id, business_id, name, provider_agent_id, provider_test_agent_id")
+    .select("id, business_id, name, provider_agent_id, provider_test_agent_id, phone_status, phone_number")
     .or(`provider_agent_id.eq.${d.agent_id},provider_test_agent_id.eq.${d.agent_id}`)
     .limit(1)
     .maybeSingle();
@@ -92,6 +92,16 @@ export async function POST(req: Request) {
   // Décompte des minutes du forfait (appels téléphoniques réels uniquement, une seule fois par appel).
   const { error: usageError } = await db.rpc("record_call_usage", { p_call_id: call.id });
   if (usageError) await logError("webhook", "Décompte des minutes impossible", { error: usageError.message, callId: call.id }, agent.business_id);
+
+  // Premier appel réel reçu par l'agent sur le numéro relié : la ligne est confirmée, elle passe à « Connecté ».
+  if (!isTest && caller && agent.phone_status === "configuring" && agent.phone_number) {
+    const { data: route } = await db.from("phone_routes").select("number").eq("number", agent.phone_number).eq("agent_id", agent.id).maybeSingle();
+    if (route) {
+      const now = new Date().toISOString();
+      await db.from("phone_routes").update({ connected_at: now }).eq("number", route.number).is("connected_at", null);
+      await db.from("agents").update({ phone_status: "connected" }).eq("id", agent.id).eq("phone_status", "configuring");
+    }
+  }
 
   const site = process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
   after(() => processCall(call.id, site));

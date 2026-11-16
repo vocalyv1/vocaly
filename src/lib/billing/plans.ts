@@ -14,7 +14,7 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     minutes: 100,
     monthly: 59_000,
     yearly: 590_000,
-    features: ["100 minutes d'appels par mois", "1 agent, 1 numéro +242", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain"],
+    features: ["100 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain"],
   },
   pro: {
     name: "Pro",
@@ -22,7 +22,7 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     minutes: 300,
     monthly: 129_000,
     yearly: 1_290_000,
-    features: ["300 minutes d'appels par mois", "1 agent, 1 numéro +242", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain", "Support prioritaire sur WhatsApp"],
+    features: ["300 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain", "Support prioritaire sur WhatsApp"],
   },
 };
 
