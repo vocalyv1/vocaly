@@ -258,7 +258,7 @@ export default async function Home() {
       <div className="section-head">
         <span className="eyebrow">Tarifs</span>
         <h2 className="h2">Un agent qui décroche 24&nbsp;h/24. Sans engagement, satisfait ou remboursé.</h2>
-        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année pour les {EARLY_BIRD.slots} premières entreprises{left != null && left > 0 ? ` (${seatsText})` : left === 0 ? " (complète)" : ""}.</p>
+        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année sur Essentiel et Pro pour les {EARLY_BIRD.slots} premières entreprises{left != null && left > 0 ? ` (${seatsText})` : left === 0 ? " (complète)" : ""}.</p>
         <span className="guarantee">{SHIELD}Satisfait ou remboursé 14 jours</span>
       </div>
       <div className="plans">
@@ -268,7 +268,7 @@ export default async function Home() {
             <span className="plan-name">{PLANS[id].name}</span>
             <p className="plan-price">{formatFcfa(Math.round(PLANS[id].yearly / 12))}<span> / mois</span></p>
             <p className="plan-sub">Facturé {formatFcfa(PLANS[id].yearly)} par an, 2 mois offerts. Au mois, sans engagement : {formatFcfa(PLANS[id].monthly)}.</p>
-            <p className="plan-early">Avant-première : {formatFcfa(Math.round(planPrice(id, "yearly", true) / 12))} / mois en annuel</p>
+            {PLANS[id].earlyBird ? <p className="plan-early">Avant-première : {formatFcfa(Math.round(planPrice(id, "yearly", true) / 12))} / mois en annuel</p> : <p className="plan-sub">Pour démarrer avec peu d’appels.</p>}
             <ul className="offer-list">{PLANS[id].features.map((f) => <li key={f}>{f}</li>)}</ul>
             <Link className="btn btn-primary" href="/onboarding">Démarrez</Link>
           </div>
@@ -336,7 +336,7 @@ export default async function Home() {
         </details>
         <details>
           <summary>Combien ça coûte ?</summary>
-          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. En annuel, l’offre Essentiel revient à {formatFcfa(Math.round(PLANS.essentiel.yearly / 12))} par mois et l’offre Pro à {formatFcfa(Math.round(PLANS.pro.yearly / 12))} (au mois : {formatFcfa(PLANS.essentiel.monthly)} et {formatFcfa(PLANS.pro.monthly)}), avec −{EARLY_BIRD.discount * 100} % la première année pour les premières entreprises. Paiement par MTN Mobile Money, Airtel Money ou carte bancaire.</p>
+          <p>Vous créez votre agent et vous l’essayez gratuitement avant de payer. En annuel, l’offre Starter revient à {formatFcfa(Math.round(PLANS.starter.yearly / 12))} par mois, l’offre Essentiel à {formatFcfa(Math.round(PLANS.essentiel.yearly / 12))} et l’offre Pro à {formatFcfa(Math.round(PLANS.pro.yearly / 12))} (au mois : {formatFcfa(PLANS.starter.monthly)}, {formatFcfa(PLANS.essentiel.monthly)} et {formatFcfa(PLANS.pro.monthly)}), avec −{EARLY_BIRD.discount * 100} % la première année sur Essentiel et Pro pour les premières entreprises. Paiement par MTN Mobile Money, Airtel Money ou carte bancaire.</p>
         </details>
         <details>
           <summary>Et si ça ne me convient pas ?</summary>
