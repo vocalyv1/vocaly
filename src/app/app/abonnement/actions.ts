@@ -17,7 +17,7 @@ export type PayState = { ok?: boolean; message?: string; paymentId?: string };
 
 const Pay = z.object({
   kind: z.enum(["subscription", "topup"]),
-  plan: z.enum(["essentiel", "pro"]).optional(),
+  plan: z.enum(["starter", "essentiel", "pro"]).optional(),
   period: z.enum(["monthly", "yearly"]).optional(),
   method: z.enum(["momo", "card"]).default("momo"),
   operator: z.enum(["MTN_MOMO_COG", "AIRTEL_COG"]).optional(),
@@ -59,7 +59,8 @@ export async function startPayment(_: PayState, form: FormData): Promise<PayStat
     items.push({ label: `Vocaly, recharge ${TOPUP.minutes} minutes`, amount });
   } else {
     if (!p.data.plan || !p.data.period || !PLANS[p.data.plan]) return { ok: false, message: "Choisissez une offre." };
-    early = (await earlyBirdFor(sub)).eligible;
+    // Starter n'a pas l'avant-première et ne prend pas de place fondateur.
+    early = PLANS[p.data.plan].earlyBird && (await earlyBirdFor(sub)).eligible;
     amount = planPrice(p.data.plan, p.data.period, early);
     // L'offre de sortie (−10 % sur l'annuel) ne se cumule pas avec l'avant-première.
     if (!early && p.data.period === "yearly") {
