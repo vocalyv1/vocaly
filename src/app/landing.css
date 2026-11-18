@@ -227,7 +227,8 @@ html:has(.lp) { scroll-behavior: smooth; }
 .lp .phone { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Tarifs */
-.lp .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.lp .plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1180px) { .lp .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .lp .plan { border: 1px solid var(--line); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
 .lp .plan .offer-list { margin: 10px 0 18px; gap: 10px; font-size: 15px; }
 .lp .plan .btn { margin-top: auto; width: 100%; }

@@ -1,19 +1,31 @@
 // Offres Vocaly. Hypothèses de coût (pire cas, toutes les minutes consommées) :
+// Starter (40 min, 29 000 FCFA) : 40 × 140 = 5 600 + 4 % (1 160) + rapports (~200) ≈ 7 000 FCFA, marge ≈ 76 % (≈ 87 % si l'appel entrant est gratuit côté opérateur).
+// Starter n'a pas la réduction avant-première : les 10 places fondateur restent pour Essentiel et Pro, qui paient le trunk Airtel.
 // ~80 FCFA/min (ElevenLabs 0,08 $ + IA + transport) + ~60 FCFA/min opérateur +242 + ~15 000 FCFA/mois par numéro,
 // puis 4 % de frais Mobile Money sur chaque paiement. Marge dans ce pire cas : ~40 % en annuel, ~23 % en annuel avant-première. Les montants sont en FCFA (XAF), sans décimales.
 // Les minutes incluses se remettent à zéro chaque mois, y compris en paiement annuel.
 // Les minutes sont enregistrées avec chaque paiement : changer une offre ici n'affecte pas les paiements passés.
 
-export type PlanId = "essentiel" | "pro";
+export type PlanId = "starter" | "essentiel" | "pro";
 export type Period = "monthly" | "yearly";
 
-export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number; monthly: number; yearly: number; features: string[] }> = {
+export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number; monthly: number; yearly: number; earlyBird: boolean; features: string[] }> = {
+  starter: {
+    name: "Starter",
+    tag: "Environ 20 appels par mois",
+    minutes: 40,
+    monthly: 29_000,
+    yearly: 290_000,
+    earlyBird: false,
+    features: ["40 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports"],
+  },
   essentiel: {
     name: "Essentiel",
     tag: "Environ 50 appels par mois",
     minutes: 100,
     monthly: 59_000,
     yearly: 590_000,
+    earlyBird: true,
     features: ["100 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain"],
   },
   pro: {
@@ -22,6 +34,7 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     minutes: 300,
     monthly: 129_000,
     yearly: 1_290_000,
+    earlyBird: true,
     features: ["300 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain", "Support prioritaire sur WhatsApp"],
   },
 };
@@ -39,7 +52,7 @@ export const ADDON = { minutes: 100, amount: 39_000 };
 // Pire cas Essentiel annuel : 531 000 FCFA / 12 = 44 250 FCFA par mois pour ~29 000 FCFA de coûts + 4 %.
 export const EXIT_OFFER = { discount: 0.1, hours: 48 };
 
-// Avant-première : −20 % pendant la première année pour les premières entreprises.
+// Avant-première : −20 % pendant la première année pour les premières entreprises (Essentiel et Pro seulement).
 export const EARLY_BIRD = { discount: 0.2, slots: 10 };
 
 // Annuel = 10 mois payés pour 12 (−17 %).
@@ -48,7 +61,7 @@ export const PERIOD_LABEL: Record<Period, string> = { monthly: "mois", yearly: "
 export function planPrice(plan: PlanId, period: Period, earlyBird: boolean) {
   const base = PLANS[plan][period];
   // Arrondi à la centaine de francs inférieure.
-  return earlyBird ? Math.floor((base * (1 - EARLY_BIRD.discount)) / 100) * 100 : base;
+  return earlyBird && PLANS[plan].earlyBird ? Math.floor((base * (1 - EARLY_BIRD.discount)) / 100) * 100 : base;
 }
 
 // Prix annuel avec l'offre de sortie (sans avant-première).
@@ -61,5 +74,5 @@ export function formatFcfa(n: number) {
 }
 
 export function isPlan(v: unknown): v is PlanId {
-  return v === "essentiel" || v === "pro";
+  return v === "starter" || v === "essentiel" || v === "pro";
 }
