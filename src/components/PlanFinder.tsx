@@ -59,7 +59,7 @@ export function PlanFinder({ plans, seatsText, whatsapp }: { plans: FinderPlan[]
             <b>{VOLUMES[volume].label}</b>
             <input type="range" min={0} max={3} step={1} value={volume} aria-valuetext={VOLUMES[volume].label}
               onChange={(e) => { setVolume(Number(e.target.value)); setPicked(null); }} />
-            <span className="finder-scale" aria-hidden="true"><i><i>&lt; 20</i><i>50</i><i>150</i><i>150 +</i>lt; 20</i><i>20 – 50</i><i>50 – 150</i><i>150 +</i></span>
+            <span className="finder-scale" aria-hidden="true"><i>&lt; 20</i><i>20 – 50</i><i>50 – 150</i><i>150 +</i></span>
           </label>
           <div className="finder-field" role="group" aria-labelledby="finder-human">
             <span id="finder-human">L’agent doit-il pouvoir passer l’appel à quelqu’un de votre équipe&nbsp;?</span>
