@@ -316,3 +316,47 @@ html:has(.lp) { scroll-behavior: smooth; }
   .lp .sticky-cta .btn { width: 100%; min-height: 50px; }
   .lp .wa-float.up { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Tarifs par le besoin : deux questions, une recommandation */
+.lp .finder { display: grid; gap: 28px; }
+.lp .finder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; background: var(--card, var(--bg)); border: 1px solid var(--line); border-radius: 26px; padding: 28px; }
+.lp .finder-q { display: grid; gap: 26px; align-content: start; }
+.lp .finder-field { display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: center; font-size: 16px; color: var(--muted); }
+.lp .finder-field > span:first-child { font-weight: 600; color: var(--fg); }
+.lp .finder-field b { font-size: 16px; color: var(--fg); white-space: nowrap; }
+.lp .finder-field input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--fg); }
+.lp .finder-scale { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: -6px; }
+.lp .finder-scale i { font-style: normal; }
+.lp .finder-field[role=group] { grid-template-columns: 1fr; }
+.lp .finder-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 14px; }
+.lp .finder-seg button { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); cursor: pointer; }
+.lp .finder-seg button[aria-pressed=true] { background: var(--fg); color: var(--bg); }
+.lp .finder-hint { font-size: 14px; color: var(--muted); }
+.lp .finder-rec { position: relative; border: 2px solid var(--line); border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 8px; }
+.lp .finder-rec.is-rec { border-color: var(--done); }
+.lp .finder-badge { align-self: flex-start; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: var(--pearl); color: var(--fg); }
+.lp .finder-rec.is-rec .finder-badge { background: var(--done-soft); color: var(--done); }
+.lp .finder-name { font-size: 22px; font-weight: 800; margin-top: 6px; }
+.lp .finder-for { color: var(--muted); font-size: 15px; }
+.lp .finder-price { font-size: clamp(30px, 3.4vw, 40px); font-weight: 800; letter-spacing: -0.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.lp .finder-price span { font-size: 16px; font-weight: 500; color: var(--muted); }
+.lp .finder-sub { color: var(--muted); font-size: 14px; }
+.lp .finder-early { font-weight: 700; color: var(--done); font-size: 14px; }
+.lp .finder-why { font-size: 15px; padding: 12px 14px; border-radius: 12px; background: var(--pearl); margin: 8px 0 12px; }
+.lp .finder-rec .btn { margin-top: auto; width: 100%; }
+.lp .finder-back { font: inherit; font-size: 14px; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+.lp .finder-all-title { font-weight: 700; margin-bottom: 12px; }
+.lp .finder-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.lp .finder-item { font: inherit; text-align: left; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; gap: 4px; cursor: pointer; transition: border-color .2s, background .2s; }
+.lp .finder-item:hover { background: var(--pearl); }
+.lp .finder-item.on { border-color: var(--fg); }
+.lp .finder-item-name { font-weight: 800; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lp .finder-item-name em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--done); background: var(--done-soft); padding: 2px 8px; border-radius: 999px; }
+.lp .finder-item-price { font-weight: 700; font-variant-numeric: tabular-nums; }
+.lp .finder-item-price small { font-weight: 500; color: var(--muted); font-size: 13px; }
+.lp .finder-item-diff { font-size: 13px; color: var(--muted); }
+.lp .finder-common { margin-top: 14px; font-size: 15px; color: var(--muted); }
+.lp .finder-common b { color: var(--fg); }
+@media (max-width: 960px) { .lp .finder-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .lp .finder-grid { grid-template-columns: minmax(0, 1fr); padding: 18px; } .lp .finder-rec { padding: 20px; } }
+@media (max-width: 420px) { .lp .finder-list { grid-template-columns: minmax(0, 1fr); } .lp .finder-seg { grid-template-columns: 1fr; } }

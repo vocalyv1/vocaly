@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BUSINESS_PLUS_TAG, EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/plans";
+import { BUSINESS_PLUS_FOR_WHO, EARLY_BIRD, PLANS, TOPUP, formatFcfa, planPrice } from "@/lib/billing/plans";
 import type { Metadata } from "next";
 import { Logo } from "@/components/Logo";
 import { LandingThemeButton } from "@/components/LandingThemeButton";
@@ -8,6 +8,7 @@ import { HeroStart } from "@/components/HeroStart";
 import { LandingTracker } from "@/components/LandingTracker";
 import { LandingSounds } from "@/components/LandingSounds";
 import { LossCalculator } from "@/components/LossCalculator";
+import { PlanFinder } from "@/components/PlanFinder";
 import { LandingFloat } from "@/components/LandingFloat";
 import { earlyBirdFor } from "@/lib/billing/subscription";
 import "./landing.css";
@@ -257,32 +258,29 @@ export default async function Home() {
     <div className="wrap">
       <div className="section-head">
         <span className="eyebrow">Tarifs</span>
-        <h2 className="h2">Un agent qui décroche 24&nbsp;h/24. Sans engagement, satisfait ou remboursé.</h2>
-        <p className="lead">Vous essayez votre agent gratuitement dans le navigateur. Vous payez par MTN Mobile Money, Airtel Money ou carte bancaire quand vous activez votre numéro. Avant-première : −{EARLY_BIRD.discount * 100} % la première année sur Essentiel et Pro pour les {EARLY_BIRD.slots} premières entreprises{left != null && left > 0 ? ` (${seatsText})` : left === 0 ? " (complète)" : ""}.</p>
+        <h2 className="h2">Deux questions, et on vous dit quel forfait prendre.</h2>
+        <p className="lead">Vous essayez votre agent gratuitement avant de payer. Sans engagement.</p>
         <span className="guarantee">{SHIELD}Satisfait ou remboursé 14 jours</span>
       </div>
-      <div className="plans">
-        {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => (
-          <div className="plan" key={id}>
-            <span className={`plan-tag plan-tag-${id}`}>{PLANS[id].tag}</span>
-            <span className="plan-name">{PLANS[id].name}</span>
-            <p className="plan-price">{formatFcfa(Math.round(PLANS[id].yearly / 12))}<span> / mois</span></p>
-            <p className="plan-sub">Facturé {formatFcfa(PLANS[id].yearly)} par an, 2 mois offerts. Au mois, sans engagement : {formatFcfa(PLANS[id].monthly)}.</p>
-            {PLANS[id].earlyBird ? <p className="plan-early">Avant-première : {formatFcfa(Math.round(planPrice(id, "yearly", true) / 12))} / mois en annuel</p> : <p className="plan-sub">Pour démarrer avec peu d’appels.</p>}
-            <ul className="offer-list">{PLANS[id].features.map((f) => <li key={f}>{f}</li>)}</ul>
-            <Link className="btn btn-primary" href="/onboarding">Démarrez</Link>
-          </div>
-        ))}
-        <div className="plan">
-          <span className="plan-tag plan-tag-business">{BUSINESS_PLUS_TAG}</span>
-          <span className="plan-name">Business+</span>
-          <p className="plan-price">Sur devis</p>
-          <p className="plan-sub">Plusieurs agents, plusieurs numéros, gros volumes d’appels.</p>
-          <ul className="offer-list"><li>Minutes adaptées à votre volume</li><li>Plusieurs agents et numéros +242</li><li>Mise en place complète avec notre équipe</li><li>Suivi dédié</li></ul>
-          <a className="btn btn-ghost" href="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B" target="_blank" rel="noopener">Contactez-nous</a>
-        </div>
-      </div>
-      <p className="plan-note">Satisfait ou remboursé : si Vocaly ne vous convient pas, nous remboursons votre premier paiement d’abonnement sur simple message WhatsApp dans les 14 jours (<a href="/cgu">conditions</a>). Minutes supplémentaires : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes de l’offre se renouvellent chaque mois. Nombre d’appels estimé pour une durée moyenne de 2 minutes.</p>
+      <PlanFinder
+        seatsText={left != null && left > 0 ? seatsText : null}
+        whatsapp="https://wa.me/242057949393?text=Bonjour%2C%20je%20souhaite%20un%20devis%20Vocaly%20Business%2B"
+        plans={[
+          ...(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((id) => ({
+            id,
+            name: PLANS[id].name,
+            forWho: PLANS[id].forWho,
+            minutes: PLANS[id].minutes,
+            monthly: PLANS[id].monthly,
+            yearly: PLANS[id].yearly,
+            early: PLANS[id].earlyBird && left != null && left > 0 ? planPrice(id, "monthly", true) : null,
+            transfer: id !== "starter",
+            extra: id === "pro" ? "support prioritaire WhatsApp" : undefined,
+          })),
+          { id: "business" as const, name: "Business+", forWho: BUSINESS_PLUS_FOR_WHO, minutes: null, monthly: null, yearly: null, early: null, transfer: true, extra: "plusieurs numéros et agents" },
+        ]}
+      />
+      <p className="plan-note">Remboursement du premier paiement d’abonnement sur simple message WhatsApp dans les 14 jours (<a href="/cgu">conditions</a>). Minutes en plus : {formatFcfa(TOPUP.amount)} les {TOPUP.minutes} minutes, sans date d’expiration. Les minutes du forfait se renouvellent chaque mois.</p>
     </div>
   </section>
 

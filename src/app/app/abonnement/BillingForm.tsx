@@ -135,7 +135,7 @@ export function BillingForm(p: Props) {
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {p.plans.map((x) => {
           const isSel = kind === "subscription" && plan === x.id;
           const full = x[period];

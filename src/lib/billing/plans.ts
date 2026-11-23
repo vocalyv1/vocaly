@@ -9,7 +9,7 @@
 export type PlanId = "starter" | "essentiel" | "pro";
 export type Period = "monthly" | "yearly";
 
-export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number; monthly: number; yearly: number; earlyBird: boolean; features: string[] }> = {
+export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number; monthly: number; yearly: number; earlyBird: boolean; forWho: string; features: string[] }> = {
   starter: {
     name: "Starter",
     tag: "Environ 20 appels par mois",
@@ -17,6 +17,7 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     monthly: 29_000,
     yearly: 290_000,
     earlyBird: false,
+    forWho: "Pour les indépendants et petits commerces qui reçoivent quelques appels par semaine.",
     features: ["40 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports"],
   },
   essentiel: {
@@ -26,6 +27,7 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     monthly: 59_000,
     yearly: 590_000,
     earlyBird: true,
+    forWho: "Pour les entreprises qui reçoivent un à deux appels par jour et veulent pouvoir passer la main à un humain.",
     features: ["100 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain"],
   },
   pro: {
@@ -35,11 +37,13 @@ export const PLANS: Record<PlanId, { name: string; tag: string; minutes: number;
     monthly: 129_000,
     yearly: 1_290_000,
     earlyBird: true,
+    forWho: "Pour les cliniques, hôtels, écoles et agences qui reçoivent plusieurs appels par jour.",
     features: ["300 minutes d'appels par mois", "1 agent, sur votre numéro actuel", "Résumé de chaque appel par e-mail et dans Rapports", "Transfert vers un humain", "Support prioritaire sur WhatsApp"],
   },
 };
 
 // Étiquettes calculées sur une durée moyenne de 2 minutes par appel.
+export const BUSINESS_PLUS_FOR_WHO = "Pour les réseaux d'agences et les gros volumes : plusieurs numéros, plusieurs agents.";
 export const BUSINESS_PLUS_TAG = "Plusieurs lignes, gros volumes";
 
 // Recharge : 100 minutes supplémentaires, sans date d'expiration.
