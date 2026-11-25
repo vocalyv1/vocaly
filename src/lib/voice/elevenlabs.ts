@@ -53,7 +53,30 @@ export function buildConversationConfig(business: Business, agent: Agent, faq: F
 }
 
 // Crée l'agent ElevenLabs s'il n'existe pas encore, sinon le met à jour. Renvoie son identifiant.
+// Les voix proposées viennent de la bibliothèque publique d'ElevenLabs : une voix doit être ajoutée au compte
+// (« My Voices ») avant qu'un agent puisse l'utiliser. On l'ajoute automatiquement la première fois.
+const voiceReady = new Map<string, string>();
+export async function ensureVoice(voiceId: string) {
+  const known = voiceReady.get(voiceId);
+  if (known) return known;
+  try {
+    await el().voices.get(voiceId);
+    voiceReady.set(voiceId, voiceId);
+    return voiceId;
+  } catch (e) {
+    if ((e as { statusCode?: number }).statusCode !== 400 && (e as { statusCode?: number }).statusCode !== 404) throw e;
+  }
+  const shared = await el().voices.getShared({ search: voiceId, pageSize: 10 });
+  const v = shared.voices.find((x) => x.voiceId === voiceId);
+  if (!v) return voiceId; // introuvable dans la bibliothèque : ElevenLabs renverra l'erreur de voix, affichée à l'utilisateur
+  const added = await el().voices.share(v.publicOwnerId, voiceId, { newName: v.name });
+  const id = added.voiceId || voiceId;
+  voiceReady.set(voiceId, id);
+  return id;
+}
+
 export async function upsertProviderAgent(existingId: string | null, name: string, config: ElevenLabs.ConversationalConfig) {
+  if (config.tts?.voiceId) config = { ...config, tts: { ...config.tts, voiceId: await ensureVoice(config.tts.voiceId) } };
   if (existingId) {
     await el().conversationalAi.agents.update(existingId, { name, conversationConfig: config });
     return existingId;
