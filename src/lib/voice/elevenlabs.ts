@@ -82,5 +82,16 @@ export function providerErrorMessage(e: unknown) {
   if (msg.includes("ELEVENLABS_API_KEY")) return "Le service vocal n'est pas encore branché (clé ElevenLabs manquante dans Vercel).";
   if (/401|unauthori/i.test(msg)) return "La clé ElevenLabs est refusée. Vérifiez-la dans Vercel.";
   if (/quota|limit|402/i.test(msg)) return "Le quota ElevenLabs est atteint.";
-  return "Le service vocal n'a pas répondu correctement. Réessayez dans un instant.";
+  if (/voice/i.test(detail(e))) return `La voix choisie n'est pas disponible sur le compte ElevenLabs. Choisissez une autre voix ou ajoutez-la dans ElevenLabs (${detail(e)}).`;
+  const d = detail(e);
+  return `Le service vocal n'a pas répondu correctement${d ? ` (${d})` : ""}. Réessayez dans un instant.`;
+}
+
+// Code et message renvoyés par ElevenLabs, sans donnée sensible (jamais la clé), pour savoir quoi corriger.
+function detail(e: unknown) {
+  const err = e as { statusCode?: number; body?: unknown };
+  if (!err || typeof err !== "object" || err.statusCode == null) return "";
+  const b = err.body as { detail?: { message?: string; status?: string } | string } | undefined;
+  const msg = typeof b?.detail === "string" ? b.detail : b?.detail?.message ?? b?.detail?.status ?? (b ? JSON.stringify(b) : "");
+  return `ElevenLabs ${err.statusCode}${msg ? ` : ${String(msg).slice(0, 220)}` : ""}`;
 }
