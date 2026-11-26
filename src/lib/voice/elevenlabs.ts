@@ -75,14 +75,30 @@ export async function ensureVoice(voiceId: string) {
   return id;
 }
 
-export async function upsertProviderAgent(existingId: string | null, name: string, config: ElevenLabs.ConversationalConfig) {
+// `privateAgent` : l'agent n'accepte que des sessions signées par notre serveur (agent de test, limité avant paiement).
+export async function upsertProviderAgent(existingId: string | null, name: string, config: ElevenLabs.ConversationalConfig, privateAgent = false) {
   if (config.tts?.voiceId) config = { ...config, tts: { ...config.tts, voiceId: await ensureVoice(config.tts.voiceId) } };
+  const platformSettings = privateAgent ? { auth: { enableAuth: true } } : undefined;
   if (existingId) {
-    await el().conversationalAi.agents.update(existingId, { name, conversationConfig: config });
+    await el().conversationalAi.agents.update(existingId, { name, conversationConfig: config, ...(platformSettings ? { platformSettings } : {}) });
     return existingId;
   }
-  const res = await el().conversationalAi.agents.create({ name, conversationConfig: config, tags: ["vocaly"] });
+  const res = await el().conversationalAi.agents.create({ name, conversationConfig: config, tags: ["vocaly"], ...(platformSettings ? { platformSettings } : {}) });
   return res.agentId;
+}
+
+// Essais dans le navigateur avant paiement : 5 conversations de 3 minutes au plus (décision Thierry 26/11/2026).
+export const TEST_LIMITS = { calls: 5, seconds: 180 };
+
+// Nombre de conversations déjà passées avec l'agent de test (source : ElevenLabs, pas une estimation).
+export async function countTestConversations(agentId: string, max = TEST_LIMITS.calls) {
+  const res = await el().conversationalAi.conversations.list({ agentId, pageSize: max });
+  return res.conversations.length;
+}
+
+// Adresse de session à usage unique pour l'agent de test (privé : seules ces sessions sont acceptées).
+export async function testSessionUrl(agentId: string) {
+  return (await el().conversationalAi.conversations.getSignedUrl({ agentId })).signedUrl;
 }
 
 export async function createTextDoc(name: string, text: string) {

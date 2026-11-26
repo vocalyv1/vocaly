@@ -8,6 +8,7 @@ import { TestWidget } from "./TestWidget";
 import { ActivatePanel } from "./ActivatePanel";
 import { earlyBirdFor, isActive, type Subscription } from "@/lib/billing/subscription";
 import { EARLY_BIRD, formatFcfa, planPrice } from "@/lib/billing/plans";
+import { countTestConversations, elevenLabsConfigured, TEST_LIMITS } from "@/lib/voice/elevenlabs";
 
 // Réponse du quiz « Quand ratez-vous le plus d'appels ? », reprise pour personnaliser l'activation.
 const MISSED: Record<string, string> = { busy: "quand vous êtes occupé avec un client", night: "le soir et la nuit", weekend: "le week-end", rush: "aux heures de pointe" };
@@ -55,6 +56,11 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
         early={early.eligible ? { left: early.left, discount: EARLY_BIRD.discount } : null} />
     );
   }
+  // Essais gratuits restants avant paiement (comptés chez ElevenLabs).
+  let testsLeft: number | null = null;
+  if (!active && agent.provider_test_agent_id && elevenLabsConfigured()) {
+    try { testsLeft = Math.max(0, TEST_LIMITS.calls - (await countTestConversations(agent.provider_test_agent_id))); } catch { testsLeft = null; }
+  }
   const hasChanges = !agent.published_at || new Date(agent.updated_at) > new Date(agent.published_at);
 
   return (
@@ -64,7 +70,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
         <Card className="mb-6 scroll-mt-24 border-2 border-noir">
           <h2 id="tester" className="text-2xl font-semibold">{bienvenue ? `${agent.name} est prêt : parlez-lui maintenant` : `Parlez à ${agent.name}`}</h2>
           <p className="mb-4 mt-1 text-sm text-gris">Jouez le rôle d&apos;un client : demandez vos horaires, vos prix, un rendez-vous. Vous pourrez corriger ses réglages juste en dessous.</p>
-          <TestWidget agentId={agent.provider_test_agent_id} autoPrepare />
+          <TestWidget agentId={agent.provider_test_agent_id} autoPrepare testsLeft={testsLeft} />
         </Card>
       )}
       <div className={`mb-6 grid gap-4 ${focusTest ? "" : "md:grid-cols-2"}`}>
@@ -85,7 +91,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
         {!focusTest && (
           <Card className="scroll-mt-24">
             <h2 id="tester" className="mb-1 text-lg font-medium">Tester le brouillon</h2>
-            <TestWidget agentId={agent.provider_test_agent_id} />
+            <TestWidget agentId={agent.provider_test_agent_id} testsLeft={testsLeft} />
           </Card>
         )}
       </div>

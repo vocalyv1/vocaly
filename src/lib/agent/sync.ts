@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Agent, Business } from "@/lib/workspace";
 import { createAdminClient, logError } from "@/lib/supabase/admin";
 import {
-  buildConversationConfig, createFileDoc, createTextDoc, createUrlDoc, providerErrorMessage, upsertProviderAgent, type KbDoc,
+  buildConversationConfig, createFileDoc, createTextDoc, createUrlDoc, providerErrorMessage, upsertProviderAgent, TEST_LIMITS, type KbDoc,
 } from "@/lib/voice/elevenlabs";
 
 type Source = {
@@ -53,7 +53,9 @@ export type SyncResult = { ok: true } | { ok: false; error: string };
 export async function syncDraft(supabase: SupabaseClient, business: Business, agent: Agent): Promise<SyncResult> {
   try {
     const { config } = await loadContext(supabase, business, agent);
-    const id = await upsertProviderAgent(agent.provider_test_agent_id, `[Test] ${agent.name} · ${business.name}`, config);
+    // L'agent de test : 3 minutes max par essai et sessions signées par le serveur uniquement.
+    const testConfig = { ...config, conversation: { ...config.conversation, maxDurationSeconds: Math.min(agent.max_call_seconds, TEST_LIMITS.seconds) } };
+    const id = await upsertProviderAgent(agent.provider_test_agent_id, `[Test] ${agent.name} · ${business.name}`, testConfig, true);
     await createAdminClient().from("agents").update({ provider_test_agent_id: id, draft_synced_at: new Date().toISOString(), sync_error: null }).eq("id", agent.id);
     return { ok: true };
   } catch (e) {
